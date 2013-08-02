@@ -1,3 +1,4 @@
+#! /usr/bin/env python
 """ naga.py 
 This is the file that users should run when calling naga from the command
 line.
@@ -16,7 +17,13 @@ INFO_CHOICES = {
 #'disk':'',
  }
 
-def main():
+def timecheck(start_time, timeout, proc=None):
+    if time.time()-start_time > timeout:
+        if proc is not None:
+            proc.terminate()
+        raise TimeoutError
+
+def parse_opts():
     start_time = time.time()
     desc = """
     A python plugin for the Nagios monitoring system that connects to remote
@@ -48,30 +55,50 @@ def main():
             choices=INFO_CHOICES.keys(),
         help='Which type of information to return.')
 
-    options = parser.parse_args()
+    return parser.parse_args()
 
 def connect(hostname, info, timeout, start_time=None, **kwargs):
     if start_time == None:
         start_time = time.time()
+    if 'user' in kwargs:
+        user = kwargs['user']
+    else:
+        import getpass
+        user = getpass.getuser()
 
-    cmd = INFO_CHOICES[info]
+    cmd1 = ['/usr/bin/ssh', '%s@%s' % (user, hostname)]
+    cmd = cmd1 + INFO_CHOICES[info]
     if 'verbose' in kwargs:
         print 'about to Popen %s' % ' '.join(cmd)
     proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, 
             stderr=subprocess.PIPE)
     while proc.poll() is None:
-        if time.time()-start_time > timeout:
-            proc.terminate()
-            raise TimeoutError
+        timecheck(start_time, timeout, proc)
         time.sleep(float(timeout)/10)
     ret = proc.returncode
     out = proc.stdout.read()
     err = proc.stderr.read()
     return ret, out, err
 
+def memory(ret, out, err, start_time=None, **kwargs):
+    pass
+
+
+def main():
+    start = time.time()
+    opts = parse_opts()
+    timeout = opts[0].timeout
+    info = opts[0].information
+    host = opts[0].hostname
+    ret, out, err = connect(host, info, timeout, start)
+    timecheck(start, timeout)
+    print 'returned %s' % ret
+    print out
+
+    
 if __name__ == "__main__":
     main()
-    print options
+
 
 class TimeoutError(LookupError):
     pass
