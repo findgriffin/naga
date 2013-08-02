@@ -80,25 +80,68 @@ def connect(hostname, info, timeout, start_time=None, **kwargs):
     err = proc.stderr.read()
     return ret, out, err
 
-def memory(ret, out, err, start_time=None, **kwargs):
-    pass
+def memory(ret, out, err, start=None, **kwargs):
+    raise NotImplementedError
 
+def load(ret, out, err, start=None, **kwargs):
+    warn = 0.7
+    crit = 0.9
+    return 0, 'no detail yet', warn, crit
+
+def uptime(ret, out, err, start=None, **kwargs):
+    raise NotImplementedError
+
+def cpu(ret, out, err, start=None, **kwargs):
+    raise NotImplementedError
+
+def finish(level, info, detail, warn, crit):
+    if warn >= crit:
+        print 'Warning: warn (%s) > crit (%s) for %s | %s' % (warn, crit,
+                info, detail)
+        exit(1)
+    if level < warn and level < crit:
+        print 'OK: %s usage %s | %s' % (info, level, detail) 
+        exit(0)
+    if level > warn and level < crit:
+        print 'Warning: %s usage high %s | %s' % (info, level, detail)
+        exit(1)
+    if level > crit:
+        print 'Critical: %s usage critical %s | %s' % (info, level, detail)
+        exit(2)
+    else:
+        print 'Unknown: no conditions were met'+detail
+        exit(3)
 
 def main():
     start = time.time()
+
     opts = parse_opts()
-    timeout = opts[0].timeout
     info = opts[0].information
     host = opts[0].hostname
+    try:
+        warn = float(opts[0].warning)
+    except TypeError:
+        warn = None
+    try:
+        crit = float(opts[0].critical)
+    except TypeError:
+        crit = None
+    timeout = float(opts[0].timeout)
+
     ret, out, err = connect(host, info, timeout, start)
     timecheck(start, timeout)
-    print 'returned %s' % ret
-    print out
-
+    if info in globals().keys():
+        level, detail, warn, crit = globals()[info](ret, out, err, 
+                start=start, timeout=timeout)
+        timecheck(start, timeout)
+        finish(level, info, detail, warn, crit)
+    else:
+        print 'Unknown: Could not find processing method for %s' % info
+        exit(3)
     
 if __name__ == "__main__":
     main()
 
-
 class TimeoutError(LookupError):
-    pass
+    print 'Unknown: timeout'
+    exit(3)
