@@ -17,6 +17,15 @@ INFO_CHOICES = {
 #'disk':'',
  }
 
+INFO_LEVELS = {
+ 'load': [0.5, 0.8],
+ 'uptime': [1, 4],
+ 'memory': [0.9, 0.95],
+ 'cpu': [0.8, 0.9],
+#'network': '',
+#'disk':'',
+        }
+
 def timecheck(start_time, timeout, after, proc=None,):
     """ Check if timeout has expired, exit with unknown status if it has."""
     if time.time()-start_time > timeout:
@@ -93,21 +102,31 @@ def connect(hostname, info, timeout, binary, start_time=None, **kwargs):
 
 def memory(ret, out, err, start=None, **kwargs):
     """Get information about memory usage."""
-    raise NotImplementedError
+    if ret:
+        print 'Unknown: free returned: %s | %s' % (out, err)
+        exit(3)
+    lines = out.splitlines()
+    line1 = lines[1].split()
+    line2 = lines[2].split()
+    total = int(line1[1])
+    used  = int(line2[2])
+    free  = int(line2[3])
+    shared= int(line1[4])
+    buff  = int(line1[5])
+    cache = int(line1[6])
+
+    detail= ['used', used, 'shared', shared, 'buffers', buff, 'cache', cache,
+            'total', total]
+
+    return float(used) / total, ';'.join([str(s) for s in detail])
 
 def load(ret, out, err, start=None, **kwargs):
     """Get load information."""
-    if 'warn' in kwargs:
-        warn = float(kwargs['warn'])
-    else:
-        warn = 0.7
-
-    if 'crit' in kwargs:
-        crit = float(kwargs['crit'])
-    else:
-        crit = 0.9
+    if ret:
+        print 'Unknown: loadavg returned: %s | %s' % (out, err)
+        exit(3)
     split = out.split()
-    finish('load', float(split[0]), ';'.join(split), warn, crit)
+    return float(split[0]), ';'.join(split)
 
 def uptime(ret, out, err, start=None, **kwargs):
     """Get uptime."""
@@ -119,18 +138,22 @@ def cpu(ret, out, err, start=None, **kwargs):
 
 def finish(info, level, detail, warn, crit):
     """ Exit with correct status and message."""
+    if warn == None:
+        warn = INFO_LEVELS[info][0]
+    if crit == None:
+        crit = INFO_LEVELS[info][1]
     if warn >= crit:
         print 'Warning: warn (%s) > crit (%s) for %s | %s' % (warn, crit,
                 info, detail)
         exit(1)
     if level < warn and level < crit:
-        print 'OK: %s usage %s | %s' % (info, level, detail) 
+        print 'OK: %s usage %.2f%% | %s' % (info, level, detail) 
         exit(0)
     if level > warn and level < crit:
-        print 'Warning: %s usage high %s | %s' % (info, level, detail)
+        print 'Warning: %s usage high %.2f%% | %s' % (info, level, detail)
         exit(1)
     if level > crit:
-        print 'Critical: %s usage critical %s | %s' % (info, level, detail)
+        print 'Critical: %s usage critical %.2f%% | %s' % (info, level, detail)
         exit(2)
     else:
         print 'Unknown: no conditions were met'+detail
@@ -158,10 +181,10 @@ def main():
     ret, out, err = connect(host, info, tout, sshb, start)
     timecheck(start, tout, 'setup')
     if info in globals().keys():
-        level, detail, warn, crit = globals()[info](ret, out, err, 
+        level, detail = globals()[info](ret, out, err, 
                 start=start, timeout=tout)
         timecheck(start, tout, 'after running connect()')
-        finish(level, info, detail, warn, crit)
+        finish(info, level, detail, warn, crit)
     else:
         print 'Unknown: Could not find processing method for %s' % info
         exit(3)
