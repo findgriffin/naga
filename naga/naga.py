@@ -97,9 +97,17 @@ def memory(ret, out, err, start=None, **kwargs):
 
 def load(ret, out, err, start=None, **kwargs):
     """Get load information."""
-    warn = 0.7
-    crit = 0.9
-    return 0, 'no detail yet', warn, crit
+    if 'warn' in kwargs:
+        warn = float(kwargs['warn'])
+    else:
+        warn = 0.7
+
+    if 'crit' in kwargs:
+        crit = float(kwargs['crit'])
+    else:
+        crit = 0.9
+    split = out.split()
+    finish('load', float(split[0]), ';'.join(split), warn, crit)
 
 def uptime(ret, out, err, start=None, **kwargs):
     """Get uptime."""
@@ -109,7 +117,7 @@ def cpu(ret, out, err, start=None, **kwargs):
     """Get cpu usage."""
     raise NotImplementedError
 
-def finish(level, info, detail, warn, crit):
+def finish(info, level, detail, warn, crit):
     """ Exit with correct status and message."""
     if warn >= crit:
         print 'Warning: warn (%s) > crit (%s) for %s | %s' % (warn, crit,
