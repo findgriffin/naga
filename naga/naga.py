@@ -17,14 +17,16 @@ INFO_CHOICES = {
 #'disk':'',
  }
 
-def timecheck(start_time, timeout, proc=None):
+def timecheck(start_time, timeout, after, proc=None,):
+    """ Check if timeout has expired, exit with unknown status if it has."""
     if time.time()-start_time > timeout:
         if proc is not None:
             proc.terminate()
-        raise TimeoutError
+        print 'Unknown: timeout after %s (%ss)' % (after, timeout)
+        exit(3)
 
 def parse_opts():
-    start_time = time.time()
+    """ Parse the command line options given to naga."""
     desc = """
     A python plugin for the Nagios monitoring system that connects to remote
     hosts via ssh.  """
@@ -43,8 +45,11 @@ def parse_opts():
     parser.add_option('-v', '--verbose', action='store_true',
         help='Enable verbose output.')
 
+    parser.add_option('-b', '--binary', default='/usr/bin/ssh',
+        help='Path to ssh binary on host.')
     parser.add_option('-l', '--logname',
-        help='The login/username used to connect to the remote host')
+        help='The login/username used to connect to the remote host. \
+                (defaults to current user)')
     parser.add_option('-a', '--authentication',
         help='Authentication password for user at remote host')
     parser.add_option('-p', '--port',
@@ -57,23 +62,29 @@ def parse_opts():
 
     return parser.parse_args()
 
-def connect(hostname, info, timeout, start_time=None, **kwargs):
+def connect(hostname, info, timeout, binary, start_time=None, **kwargs):
+    """ Connect to remote machine via ssh and run relevant command."""
     if start_time == None:
         start_time = time.time()
-    if 'user' in kwargs:
-        user = kwargs['user']
+    cmd1 = [binary]
+    if 'logname' in kwargs:
+        user = kwargs['logname']
     else:
         import getpass
         user = getpass.getuser()
-
-    cmd1 = ['/usr/bin/ssh', '%s@%s' % (user, hostname)]
+    
+    if 'key' in kwargs:
+        cmd1 += ['-i', kwargs['key']]
+    if 'port' in kwargs:
+        hostname += str(kwargs['port'])
+    cmd1.append('%s@%s' % (user, hostname))
     cmd = cmd1 + INFO_CHOICES[info]
     if 'verbose' in kwargs:
         print 'about to Popen %s' % ' '.join(cmd)
     proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, 
             stderr=subprocess.PIPE)
     while proc.poll() is None:
-        timecheck(start_time, timeout, proc)
+        timecheck(start_time, timeout, 'waiting for Popen', proc)
         time.sleep(float(timeout)/10)
     ret = proc.returncode
     out = proc.stdout.read()
@@ -81,20 +92,25 @@ def connect(hostname, info, timeout, start_time=None, **kwargs):
     return ret, out, err
 
 def memory(ret, out, err, start=None, **kwargs):
+    """Get information about memory usage."""
     raise NotImplementedError
 
 def load(ret, out, err, start=None, **kwargs):
+    """Get load information."""
     warn = 0.7
     crit = 0.9
     return 0, 'no detail yet', warn, crit
 
 def uptime(ret, out, err, start=None, **kwargs):
+    """Get uptime."""
     raise NotImplementedError
 
 def cpu(ret, out, err, start=None, **kwargs):
+    """Get cpu usage."""
     raise NotImplementedError
 
 def finish(level, info, detail, warn, crit):
+    """ Exit with correct status and message."""
     if warn >= crit:
         print 'Warning: warn (%s) > crit (%s) for %s | %s' % (warn, crit,
                 info, detail)
@@ -113,11 +129,14 @@ def finish(level, info, detail, warn, crit):
         exit(3)
 
 def main():
+    """ Called when running naga from command line."""
     start = time.time()
 
     opts = parse_opts()
     info = opts[0].information
     host = opts[0].hostname
+    sshb = opts[0].binary
+    tout = float(opts[0].timeout)
     try:
         warn = float(opts[0].warning)
     except TypeError:
@@ -126,14 +145,14 @@ def main():
         crit = float(opts[0].critical)
     except TypeError:
         crit = None
-    timeout = float(opts[0].timeout)
+    
 
-    ret, out, err = connect(host, info, timeout, start)
-    timecheck(start, timeout)
+    ret, out, err = connect(host, info, tout, sshb, start)
+    timecheck(start, tout, 'setup')
     if info in globals().keys():
         level, detail, warn, crit = globals()[info](ret, out, err, 
-                start=start, timeout=timeout)
-        timecheck(start, timeout)
+                start=start, timeout=tout)
+        timecheck(start, tout, 'after running connect()')
         finish(level, info, detail, warn, crit)
     else:
         print 'Unknown: Could not find processing method for %s' % info
@@ -141,7 +160,3 @@ def main():
     
 if __name__ == "__main__":
     main()
-
-class TimeoutError(LookupError):
-    print 'Unknown: timeout'
-    exit(3)
