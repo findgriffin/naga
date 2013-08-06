@@ -87,10 +87,10 @@ def connect(hostname, info, timeout, binary, start_time=None, **kwargs):
     if 'port' in kwargs:
         hostname += str(kwargs['port'])
     cmd1.append('%s@%s' % (user, hostname))
-    cmd = cmd1 + INFO_CHOICES[info]
+    cmd = cmd1 + ['"'] + INFO_CHOICES[info] + ['"']
     if 'verbose' in kwargs:
         print 'about to Popen %s' % ' '.join(cmd)
-    proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, 
+    proc = subprocess.Popen(' '.join(cmd), shell=True, stdout=subprocess.PIPE, 
             stderr=subprocess.PIPE)
     while proc.poll() is None:
         timecheck(start_time, timeout, 'waiting for Popen', proc)
