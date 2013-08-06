@@ -7,15 +7,18 @@ via ssh.
 Naga has some key requirements:
  * NO dependencies on the remote host (only use system commands/files).
  * Few dependencies on the local host i.e. nagios server.
- * Work on python 2.6+ (because that is the RedHat 6 default)
- * Conform to Nagios [plugin gudelines](http://nagiosplug.sourceforge.net/developer-guidelines.html).
+ * Work on python 2.6+ (because that is the default for RedHat 6)
+ * Conform to Nagios [plugin gudelines][pgl].
 
 Naga can collect the following kinds of information:
- * load (niy)
- * uptime (niy)
- * memory usage (niy)
- * cpu (niy)
- * network (niy)
- * disk (niy)
+ * load 
+ * memory usage 
 
-(niy) = not implemented yet
+The following further information types are planned:
+ * uptime
+ * cpu
+ * network
+ * disk
+
+[pgl]: http://nagiosplug.sourceforge.net/developer-guidelines.html
+
