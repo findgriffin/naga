@@ -163,6 +163,8 @@ def main():
     """ Called when running naga from command line."""
     start = time.time()
 
+    required = ['information', 'hostname', 'binary', 'timeout', 'warning',
+            'critical']
     opts = parse_opts()
     info = opts[0].information
     host = opts[0].hostname
@@ -176,9 +178,12 @@ def main():
         crit = float(opts[0].critical)
     except TypeError:
         crit = None
-    
+    kwargs = {}
+    for key, val in opts[0].__dict__.items():
+        if key not in required and val is not None:
+            kwargs[key] = val
 
-    ret, out, err = connect(host, info, tout, sshb, start)
+    ret, out, err = connect(host, info, tout, sshb, start, **kwargs)
     timecheck(start, tout, 'setup')
     if info in globals().keys():
         level, detail = globals()[info](ret, out, err, 
