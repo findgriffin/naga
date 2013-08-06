@@ -9,7 +9,8 @@ import subprocess
 import time
 INFO_DEFAULT = 'load'
 INFO_CHOICES = {
- 'load': ['/bin/cat', '/proc/loadavg'],
+ 'load': ['/bin/cat', '/proc/loadavg', '&&', '/bin/cat', '/proc/cpuinfo', '|',
+     '/bin/grep', "'model name'", '|', 'wc', '-l'],
  'uptime':['/bin/cat', '/proc/uptime'],
  'memory': ['/usr/bin/free', '-m'],
  'cpu': ['/bin/cat', '/proc/stat'],
@@ -18,7 +19,7 @@ INFO_CHOICES = {
  }
 
 INFO_LEVELS = {
- 'load': [0.5, 0.8],
+ 'load': [1.0, 2.0],
  'uptime': [1, 4],
  'memory': [0.9, 0.95],
  'cpu': [0.8, 0.9],
@@ -125,8 +126,10 @@ def load(ret, out, err, start=None, **kwargs):
     if ret:
         print 'Unknown: loadavg returned: %s | %s' % (out, err)
         exit(3)
-    split = out.split()
-    return float(split[0]), ';'.join(split)
+    lines = out.splitlines()
+    split = lines[0].split()
+    cores = int(lines[1])
+    return float(split[0])/cores, ';'.join(split+[lines[1]])
 
 def uptime(ret, out, err, start=None, **kwargs):
     """Get uptime."""
