@@ -13,7 +13,8 @@ INFO_CHOICES = {
      '/bin/grep', "'model name'", '|', 'wc', '-l'],
  'uptime':['/bin/cat', '/proc/uptime'],
  'memory': ['/usr/bin/free', '-m'],
- 'cpu': ['/bin/cat', '/proc/stat'],
+ 'cpu': ['/bin/cat', '/proc/stat', '&&', '/bin/sleep', '1', '&&', '/bin/cat',
+     '/proc/stat'],
 #'network': '',
 #'disk':'',
  }
@@ -137,7 +138,27 @@ def uptime(ret, out, err, start=None, **kwargs):
 
 def cpu(ret, out, err, start=None, **kwargs):
     """Get cpu usage."""
-    raise NotImplementedError
+    lines = out.splitlines()
+    length= len(lines)
+    if not length % 2 == 0:
+        print 'Unknown: successive calls of /proc/stat were too different'
+        exit(3)
+    # columns
+    # user, nice, system, idle, iowait, irq, softirq
+    state = [lines[0].split()[1:], lines[length/2].split()[1:]]
+
+    diff = [sum((int(b),-int(a))) for a, b in zip(*state)]
+    total   = sum(diff)
+    user    = diff[0]
+    nice    = diff[1]
+    system  = diff[2]
+    idle    = diff[3]
+    iowait  = diff[4]
+    irq     = diff[4]
+    softirq = diff[4]
+
+    level = float(total - idle) / total
+    return level, ';'.join([str(i) for i in diff]+[str(total)])
 
 def finish(info, level, detail, warn, crit):
     """ Exit with correct status and message."""
