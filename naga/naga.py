@@ -45,7 +45,7 @@ def parse_opts():
     parser = optparse.OptionParser(description=desc)
 
     # optparse automatically sets up --help for us
-    parser.add_option('-t', '--timeout', default='10',
+    parser.add_option('-t', '--timeout', default='30',
         help='Set timeout (in seconds)')
     parser.add_option('-w', '--warning',
         help='Warning threshold (percentage)')
