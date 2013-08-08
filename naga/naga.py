@@ -132,10 +132,6 @@ def load(ret, out, err, start=None, **kwargs):
     cores = int(lines[1])
     return float(split[0])/cores, ';'.join(split+[lines[1]])
 
-def uptime(ret, out, err, start=None, **kwargs):
-    """Get uptime."""
-    raise NotImplementedError
-
 def cpu(ret, out, err, start=None, **kwargs):
     """Get cpu usage."""
     lines = out.splitlines()
@@ -162,6 +158,10 @@ def cpu(ret, out, err, start=None, **kwargs):
 
 def disk():
     """ Get disk io."""
+    raise NotImplementedError
+
+def filesystem():
+    """ Get filesystem usage."""
     raise NotImplementedError
 
 def network():

@@ -15,10 +15,10 @@ Naga can collect the following kinds of information:
  * memory usage 
 
 The following further information types are planned:
- * uptime
- * cpu
- * network
- * disk
+ * cpu (usage)
+ * network (io)
+ * disk (io)
+ * filesystem (usage)
 
 [pgl]: http://nagiosplug.sourceforge.net/developer-guidelines.html
 
