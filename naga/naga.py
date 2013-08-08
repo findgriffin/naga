@@ -194,13 +194,13 @@ def finish(info, level, detail, warn, crit):
                 info, detail)
         exit(1)
     if level < warn and level < crit:
-        print 'OK: %s usage %.2f%s | %s' % (info, level, unit, detail) 
+        print 'OK: %s usage is %.2f%s | %s' % (info, level, unit, detail)
         exit(0)
     if level > warn and level < crit:
-        print 'Warning: %s usage high %.2f%s | %s' % (info, level, unit, detail)
+        print 'Warning: %s usage is high %.2f%s | %s' % (info, level, unit, detail)
         exit(1)
     if level > crit:
-        print 'Critical: %s usage critical %.2f%s | %s' % (info, level, unit, detail)
+        print 'Critical: %s usage is critical %.2f%s | %s' % (info, level, unit, detail)
         exit(2)
     else:
         print 'Unknown: no conditions were met'+detail
