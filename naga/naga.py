@@ -28,6 +28,14 @@ INFO_LEVELS = {
 #'disk':'',
         }
 
+INFO_UNITS  = {
+ 'load'     : '',
+ 'memory'   : '%',
+ 'cpu'      : '%',
+ 'disk'     : 'MB/s',
+ 'network'  : 'MB/s',
+}
+
 def timecheck(start_time, timeout, after, proc=None,):
     """ Check if timeout has expired, exit with unknown status if it has."""
     if time.time()-start_time > timeout:
@@ -170,6 +178,7 @@ def network():
 
 def finish(info, level, detail, warn, crit):
     """ Exit with correct status and message."""
+    unit = INFO_UNITS[info]
     if warn == None:
         warn = INFO_LEVELS[info][0]
     if crit == None:
@@ -179,13 +188,13 @@ def finish(info, level, detail, warn, crit):
                 info, detail)
         exit(1)
     if level < warn and level < crit:
-        print 'OK: %s usage %.2f%% | %s' % (info, level, detail) 
+        print 'OK: %s usage %.2f%s | %s' % (info, level, unit, detail) 
         exit(0)
     if level > warn and level < crit:
-        print 'Warning: %s usage high %.2f%% | %s' % (info, level, detail)
+        print 'Warning: %s usage high %.2f%s | %s' % (info, level, unit, detail)
         exit(1)
     if level > crit:
-        print 'Critical: %s usage critical %.2f%% | %s' % (info, level, detail)
+        print 'Critical: %s usage critical %.2f%s | %s' % (info, level, unit, detail)
         exit(2)
     else:
         print 'Unknown: no conditions were met'+detail
