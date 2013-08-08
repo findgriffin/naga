@@ -116,18 +116,17 @@ def memory(ret, out, err, start=None, **kwargs):
     lines = out.splitlines()
     line1 = lines[1].split()
     line2 = lines[2].split()
-    total = int(line1[1])
-    used  = int(line2[2])
-    free  = int(line2[3])
-    shared= int(line1[4])
-    buff  = int(line1[5])
-    cache = int(line1[6])
-
-    detail= ['used', used, 'shared', shared, 'buffers', buff, 'cache', cache,
-            'total', total]
-
-    return float(used) / total, ';'.join([str(s) for s in detail])
-
+    res = {
+        'total' : int(line1[1]),
+        'used'  : int(line2[2]),
+        'free'  : int(line2[3]),
+        'shared': int(line1[4]),
+        'buff'  : int(line1[5]),
+        'cache' : int(line1[6]),
+    }
+    level = float(res['used']) / res['total']
+    detail = ';'.join(['='.join((k, str(v))) for k,v in res.iteritems()])
+    return level, detail
 def load(ret, out, err, start=None, **kwargs):
     """Get load information."""
     if ret:
