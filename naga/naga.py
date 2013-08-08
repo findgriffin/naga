@@ -11,21 +11,19 @@ INFO_DEFAULT = 'load'
 INFO_CHOICES = {
  'load': ['/bin/cat', '/proc/loadavg', '&&', '/bin/cat', '/proc/cpuinfo', '|',
      '/bin/grep', "'model name'", '|', 'wc', '-l'],
- 'uptime':['/bin/cat', '/proc/uptime'],
  'memory': ['/usr/bin/free', '-m'],
  'cpu': ['/bin/cat', '/proc/stat', '&&', '/bin/sleep', '1', '&&', '/bin/cat',
      '/proc/stat'],
+ 'disk':['/usr/bin/vmstat', '10', '2'],
 #'network': '',
-#'disk':'',
  }
 
 INFO_LEVELS = {
- 'load': [1.0, 2.0],
- 'uptime': [1, 4],
- 'memory': [0.9, 0.95],
- 'cpu': [0.8, 0.9],
+ 'load'     : [1.0, 2.0],
+ 'memory'   : [0.9, 0.95],
+ 'cpu'      : [0.8, 0.9],
 #'network': '',
-#'disk':'',
+ 'disk'     : [10,30], # Megabytes/s
         }
 
 INFO_UNITS  = {
@@ -164,9 +162,18 @@ def cpu(ret, out, err, start=None, **kwargs):
     level = float(total - idle) / total
     return level, ';'.join([str(i) for i in diff]+[str(total)])
 
-def disk():
+def disk(ret, out, err, start=None, **kwargs):
     """ Get disk io."""
-    raise NotImplementedError
+    mega = 1024*1024
+    if 'block' in kwargs:
+        block = kwargs['block']
+    else:
+        block = 4096
+    lines = out.splitlines()
+    mb_in  = int(lines[-1].split()[8])*block/mega
+    mb_out = int(lines[-1].split()[8])*block/mega
+    desc = 'mb_in=%s;mb_out=%s' % (mb_in, mb_out)
+    return mb_in+mb_out, desc
 
 def filesystem():
     """ Get filesystem usage."""
