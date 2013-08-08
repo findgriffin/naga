@@ -155,8 +155,8 @@ def cpu(ret, out, err, start=None, **kwargs):
     system  = diff[2]
     idle    = diff[3]
     iowait  = diff[4]
-    irq     = diff[4]
-    softirq = diff[4]
+    irq     = diff[5]
+    softirq = diff[6]
 
     level = float(total - idle) / total
     return level, ';'.join([str(i) for i in diff]+[str(total)])
