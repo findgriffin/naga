@@ -216,6 +216,10 @@ def main():
             kwargs[key] = val
 
     ret, out, err = connect(host, info, tout, sshb, start, **kwargs)
+    if not ret == 0:
+        print 'Unknown: ssh command returncode %s | out=%s;err=%s ' % (ret, out,
+                err)
+        exit(3)
     timecheck(start, tout, 'setup')
     if info in globals().keys():
         level, detail = globals()[info](ret, out, err, 
