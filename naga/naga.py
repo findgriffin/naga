@@ -160,6 +160,14 @@ def cpu(ret, out, err, start=None, **kwargs):
     level = float(total - idle) / total
     return level, ';'.join([str(i) for i in diff]+[str(total)])
 
+def disk():
+    """ Get disk io."""
+    raise NotImplementedError
+
+def network():
+    """ Get network usage."""
+    raise NotImplementedError
+
 def finish(info, level, detail, warn, crit):
     """ Exit with correct status and message."""
     if warn == None:
