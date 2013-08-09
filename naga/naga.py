@@ -127,6 +127,7 @@ def memory(ret, out, err, start=None, **kwargs):
     level = float(res['used']) / res['total']
     detail = ';'.join(['='.join((k, str(v))) for k,v in res.iteritems()])
     return level, detail
+
 def load(ret, out, err, start=None, **kwargs):
     """Get load information."""
     if ret:
@@ -135,7 +136,16 @@ def load(ret, out, err, start=None, **kwargs):
     lines = out.splitlines()
     split = lines[0].split()
     cores = int(lines[1])
-    return float(split[0])/cores, ';'.join(split+[lines[1]])
+    desc = [
+           ('5min',  split[0]),
+           ('10min', split[1]),
+           ('15min', split[2]),
+           ('running', split[3].split('/')[0]),
+           ('procs', split[3].split('/')[1]),
+           ('last', split[4]),
+           ('cores', cores),
+            ]
+    return float(split[0])/cores, desc
 
 def cpu(ret, out, err, start=None, **kwargs):
     """Get cpu usage."""
@@ -189,6 +199,8 @@ def finish(info, level, detail, warn, crit):
         warn = INFO_LEVELS[info][0]
     if crit == None:
         crit = INFO_LEVELS[info][1]
+    if type(detail) == list:
+        detail = ';'.join(['='.join((k, str(v))) for k,v in detail])
     if warn >= crit:
         print 'Warning: warn (%s) > crit (%s) for %s | %s' % (warn, crit,
                 info, detail)
