@@ -7,6 +7,8 @@ line.
 import optparse
 import subprocess
 import time
+
+DIVIDE = 'NAGA_DIVIDE'
 INFO_DEFAULT = 'load'
 INFO_CHOICES = {
  'load': ['/bin/cat', '/proc/loadavg', '&&', '/bin/cat', '/proc/cpuinfo', '|',
@@ -15,7 +17,14 @@ INFO_CHOICES = {
  'cpu': ['/bin/cat', '/proc/stat', '&&', '/bin/sleep', '1', '&&', '/bin/cat',
      '/proc/stat'],
  'disk':['/usr/bin/vmstat', '10', '2'],
-#'network': '',
+ 'network': [
+    '/bin/ls', '/sys/class/net/', '&&', '/bin/echo', DIVIDE, '&&',
+    '/bin/cat', '/sys/class/net/*/statistics/rx_bytes', '&&', 
+    '/bin/cat', '/sys/class/net/*/statistics/tx_bytes', '&&',
+    '/bin/sleep', '10', '&&',
+    '/bin/cat', '/sys/class/net/*/statistics/rx_bytes', '&&', 
+    '/bin/cat', '/sys/class/net/*/statistics/tx_bytes',
+    ],
  'filesystem': ['/bin/df']
  }
 
@@ -23,7 +32,7 @@ INFO_LEVELS = {
  'load'     : [1.0, 2.0],
  'memory'   : [0.9, 0.95],
  'cpu'      : [0.8, 0.9],
-#'network': '',
+ 'network'  : [5, 10], # Megabytes/s
  'disk'     : [10,30], # Megabytes/s
  'filesystem': [0.7, 0.8],
         }
@@ -213,6 +222,11 @@ def filesystem(ret, out, err, **kwargs):
 
 def network(ret, out, err, **kwargs):
     """ Get network usage."""
+    ifaces = out.split(DIVIDE)[0].split()
+    data   = out.split(DIVIDE)[1].split()
+    n = len(ifaces)
+    result = [data[i:i+n] for i in xrange(0, len(data), n)]
+    
     raise NotImplementedError
 
 def finish(info, level, detail, extra, **kwargs):
