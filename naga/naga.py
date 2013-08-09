@@ -195,6 +195,10 @@ def network():
 def finish(info, level, detail, warn, crit):
     """ Exit with correct status and message."""
     unit = INFO_UNITS[info]
+    if unit == '%':
+        converted = level*100
+    else:
+        converted = level
     if warn == None:
         warn = INFO_LEVELS[info][0]
     if crit == None:
@@ -206,13 +210,13 @@ def finish(info, level, detail, warn, crit):
                 info, detail)
         exit(1)
     if level < warn and level < crit:
-        print 'OK: %s usage is %.2f%s | %s' % (info, level, unit, detail)
+        print 'OK: %s usage is %.2g%s | %s' % (info, converted, unit, detail)
         exit(0)
     if level > warn and level < crit:
-        print 'Warning: %s usage is high %.2f%s | %s' % (info, level, unit, detail)
+        print 'Warning: %s usage is high %.2g%s | %s' % (info, converted, unit, detail)
         exit(1)
     if level > crit:
-        print 'Critical: %s usage is critical %.2f%s | %s' % (info, level, unit, detail)
+        print 'Critical: %s usage is critical %.2g%s | %s' % (info, converted, unit, detail)
         exit(2)
     else:
         print 'Unknown: no conditions were met'+detail
