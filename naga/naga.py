@@ -16,6 +16,7 @@ INFO_CHOICES = {
      '/proc/stat'],
  'disk':['/usr/bin/vmstat', '10', '2'],
 #'network': '',
+ 'filesystem': ['/bin/df']
  }
 
 INFO_LEVELS = {
@@ -24,6 +25,7 @@ INFO_LEVELS = {
  'cpu'      : [0.8, 0.9],
 #'network': '',
  'disk'     : [10,30], # Megabytes/s
+ 'filesystem': [0.7, 0.8],
         }
 
 INFO_UNITS  = {
@@ -32,6 +34,7 @@ INFO_UNITS  = {
  'cpu'      : '%',
  'disk'     : 'MB/s',
  'network'  : 'MB/s',
+ 'filesystem': '%',
 }
 
 def timecheck(start_time, timeout, after, proc=None,):
@@ -144,7 +147,7 @@ def load(ret, out, err, start=None, **kwargs):
            ('last', split[4]),
            ('cores', cores),
             ]
-    return float(split[0])/cores, desc
+    return float(split[0])/cores, desc, ''
 
 def cpu(ret, out, err, start=None, **kwargs):
     """Get cpu usage."""
@@ -169,7 +172,7 @@ def cpu(ret, out, err, start=None, **kwargs):
             ('softirq' , diff[6]),
         ]
     level = float(total - detail[3][1]) / total
-    return level, detail
+    return level, detail, ''
 
 def disk(ret, out, err, start=None, **kwargs):
     """ Get disk io."""
@@ -182,17 +185,41 @@ def disk(ret, out, err, start=None, **kwargs):
     mb_in  = int(lines[-1].split()[8])*block/mega
     mb_out = int(lines[-1].split()[8])*block/mega
     desc = 'mb_in=%s;mb_out=%s' % (mb_in, mb_out)
-    return mb_in+mb_out, desc
+    return mb_in+mb_out, desc, ''
 
-def filesystem():
+def filesystem(ret, out, err, start=None, **kwargs):
     """ Get filesystem usage."""
+    systems = {}
+    for line in out.splitlines()[1:]:
+        ln = line.split()
+        # filesystem blocks used available use% mounted
+        systems[ln[5]] = [ln[0], int(ln[1]), int(ln[2]), int(ln[3])]
+    if not filesystem in kwargs:
+        fs = '/'
+    else:
+        fs = kwargs['fs']
+    if not fs in systems:
+        print 'Unknown: could not find filesystem %s | %s' % (fs, out)
+        exit(3)
+    fs_info = systems[fs]
+    level = float(fs_info[2]) / fs_info[1]
+    detail = []
+    for name, info in systems.items():
+        if info[0].startswith('/dev/') or name == '/':
+            data = ';'.join([str(i) for i in info[:3]])
+            detail.append((name, data))
+    extra = 'on %s' % fs
+
+    return level, detail, extra
+
+
     raise NotImplementedError
 
-def network():
+def network(ret, out, err, start=None, **kwargs):
     """ Get network usage."""
     raise NotImplementedError
 
-def finish(info, level, detail, warn, crit):
+def finish(info, level, detail, warn, crit, extra):
     """ Exit with correct status and message."""
     unit = INFO_UNITS[info]
     if unit == '%':
@@ -210,13 +237,13 @@ def finish(info, level, detail, warn, crit):
                 info, detail)
         exit(1)
     if level < warn and level < crit:
-        print 'OK: %s usage is %.2g%s | %s' % (info, converted, unit, detail)
+        print 'OK: %s usage is %.2g%s %s | %s' % (info, converted, unit, extra, detail)
         exit(0)
     if level > warn and level < crit:
-        print 'Warning: %s usage is high %.2g%s | %s' % (info, converted, unit, detail)
+        print 'Warning: %s usage is high %.2g%s %s | %s' % (info, converted, unit, extra, detail)
         exit(1)
     if level > crit:
-        print 'Critical: %s usage is critical %.2g%s | %s' % (info, converted, unit, detail)
+        print 'Critical: %s usage is critical %.2g%s %s | %s' % (info, converted, unit, extra, detail)
         exit(2)
     else:
         print 'Unknown: no conditions were met'+detail
@@ -253,10 +280,10 @@ def main():
         exit(3)
     timecheck(start, tout, 'setup')
     if info in globals().keys():
-        level, detail = globals()[info](ret, out, err, 
+        level, detail, extra = globals()[info](ret, out, err,
                 start=start, timeout=tout)
         timecheck(start, tout, 'after running connect()')
-        finish(info, level, detail, warn, crit)
+        finish(info, level, detail, warn, crit, extra)
     else:
         print 'Unknown: Could not find processing method for %s' % info
         exit(3)
