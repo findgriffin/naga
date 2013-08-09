@@ -111,7 +111,7 @@ def connect(hostname, info, timeout, binary, start_time=None, **kwargs):
     err = proc.stderr.read()
     return ret, out, err
 
-def memory(ret, out, err, start=None, **kwargs):
+def memory(ret, out, err, **kwargs):
     """Get information about memory usage."""
     if ret:
         print 'Unknown: free returned: %s | %s' % (out, err)
@@ -130,7 +130,7 @@ def memory(ret, out, err, start=None, **kwargs):
     level = float(detail[1][1]) / detail[0][1]
     return level, detail
 
-def load(ret, out, err, start=None, **kwargs):
+def load(ret, out, err, **kwargs):
     """Get load information."""
     if ret:
         print 'Unknown: loadavg returned: %s | %s' % (out, err)
@@ -149,18 +149,17 @@ def load(ret, out, err, start=None, **kwargs):
             ]
     return float(split[0])/cores, desc, ''
 
-def cpu(ret, out, err, start=None, **kwargs):
+def cpu(ret, out, err, **kwargs):
     """Get cpu usage."""
-    lines = out.splitlines()
-    length= len(lines)
+    lines  = out.splitlines()
+    length = len(lines)
     if not length % 2 == 0:
         print 'Unknown: successive calls of /proc/stat were too different'
         exit(3)
     # columns
     # user, nice, system, idle, iowait, irq, softirq
     state = [lines[0].split()[1:], lines[length/2].split()[1:]]
-
-    diff = [sum((int(b),-int(a))) for a, b in zip(*state)]
+    diff = [sum((int(b), -int(a))) for a, b in zip(*state)]
     total   = sum(diff)
     detail = [
             ('user'    , diff[0]),
@@ -187,63 +186,67 @@ def disk(ret, out, err, start=None, **kwargs):
     desc = 'mb_in=%s;mb_out=%s' % (mb_in, mb_out)
     return mb_in+mb_out, desc, ''
 
-def filesystem(ret, out, err, start=None, **kwargs):
+def filesystem(ret, out, err, **kwargs):
     """ Get filesystem usage."""
     systems = {}
     for line in out.splitlines()[1:]:
-        ln = line.split()
+        parts = line.split()
         # filesystem blocks used available use% mounted
-        systems[ln[5]] = [ln[0], int(ln[1]), int(ln[2]), int(ln[3])]
+        systems[parts[5]] = [parts[0], int(parts[1]), int(parts[2]), 
+                int(parts[3])]
     if not filesystem in kwargs:
-        fs = '/'
+        fsys = '/'
     else:
-        fs = kwargs['fs']
-    if not fs in systems:
-        print 'Unknown: could not find filesystem %s | %s' % (fs, out)
+        fsys = kwargs['fsys']
+    if not fsys in systems:
+        print 'Unknown: could not find filesystem %s | %s' % (fsys, out)
         exit(3)
-    fs_info = systems[fs]
-    level = float(fs_info[2]) / fs_info[1]
+    fs_info = systems[fsys]
+    
     detail = []
     for name, info in systems.items():
         if info[0].startswith('/dev/') or name == '/':
             data = ';'.join([str(i) for i in info[:3]])
             detail.append((name, data))
-    extra = 'on %s' % fs
 
-    return level, detail, extra
+    return float(fs_info[2]) / fs_info[1], detail, 'on %s' % fsys
 
-
-    raise NotImplementedError
-
-def network(ret, out, err, start=None, **kwargs):
+def network(ret, out, err, **kwargs):
     """ Get network usage."""
     raise NotImplementedError
 
-def finish(info, level, detail, warn, crit, extra):
+def finish(info, level, detail, extra, **kwargs):
     """ Exit with correct status and message."""
     unit = INFO_UNITS[info]
     if unit == '%':
         converted = level*100
     else:
         converted = level
-    if warn == None:
+    if 'warn' in kwargs:
+        warn = kwargs['warn']
+    else:
         warn = INFO_LEVELS[info][0]
-    if crit == None:
+    if 'crit' in kwargs:
+        crit = kwargs['crit']
+    else:
         crit = INFO_LEVELS[info][1]
     if type(detail) == list:
-        detail = ';'.join(['='.join((k, str(v))) for k,v in detail])
+        detail = ';'.join(['='.join((k, str(v))) for k, v in detail])
     if warn >= crit:
         print 'Warning: warn (%s) > crit (%s) for %s | %s' % (warn, crit,
                 info, detail)
         exit(1)
     if level < warn and level < crit:
-        print 'OK: %s usage is %.2g%s %s | %s' % (info, converted, unit, extra, detail)
+        print 'OK: %s usage is %.2g%s %s | %s' % (info, converted, unit, extra,
+                detail) 
         exit(0)
     if level > warn and level < crit:
-        print 'Warning: %s usage is high %.2g%s %s | %s' % (info, converted, unit, extra, detail)
+        print 'Warning: %s usage is high %.2g%s %s | %s' % (info, converted,
+                unit, extra, detail) 
         exit(1)
     if level > crit:
-        print 'Critical: %s usage is critical %.2g%s %s | %s' % (info, converted, unit, extra, detail)
+        print 'Critical: %s usage is critical %.2g%s %s | %s' % (info,
+                converted, unit, extra, detail) 
         exit(2)
     else:
         print 'Unknown: no conditions were met'+detail
@@ -257,8 +260,6 @@ def main():
             'critical']
     opts = parse_opts()
     info = opts[0].information
-    host = opts[0].hostname
-    sshb = opts[0].binary
     tout = float(opts[0].timeout)
     try:
         warn = float(opts[0].warning)
@@ -273,17 +274,17 @@ def main():
         if key not in required and val is not None:
             kwargs[key] = val
 
-    ret, out, err = connect(host, info, tout, sshb, start, **kwargs)
-    if not ret == 0:
-        print 'Unknown: ssh command returncode %s | out=%s;err=%s ' % (ret, out,
-                err)
+    out = connect(opts[0].hostname, info, tout, opts[0].binary, 
+            start, **kwargs)
+    if not out[0] == 0:
+        print 'Unknown: ssh command returncode %s | out=%s;err=%s ' % out
         exit(3)
     timecheck(start, tout, 'setup')
     if info in globals().keys():
-        level, detail, extra = globals()[info](ret, out, err,
+        level, detail, extra = globals()[info](out[0], out[1], out[2],
                 start=start, timeout=tout)
         timecheck(start, tout, 'after running connect()')
-        finish(info, level, detail, warn, crit, extra)
+        finish(info, level, detail, extra, warn=warn, crit=crit)
     else:
         print 'Unknown: Could not find processing method for %s' % info
         exit(3)
