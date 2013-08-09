@@ -13,12 +13,12 @@ Naga has some key requirements:
 Naga can collect the following kinds of information:
  * load 
  * memory usage 
-
-The following further information types are planned:
  * cpu (usage)
- * network (io)
  * disk (io)
  * filesystem (usage)
+
+The following further information types are planned:
+ * network (io)
 
 [pgl]: http://nagiosplug.sourceforge.net/developer-guidelines.html
 
