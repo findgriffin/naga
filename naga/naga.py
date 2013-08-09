@@ -116,16 +116,15 @@ def memory(ret, out, err, start=None, **kwargs):
     lines = out.splitlines()
     line1 = lines[1].split()
     line2 = lines[2].split()
-    res = {
-        'total' : int(line1[1]),
-        'used'  : int(line2[2]),
-        'free'  : int(line2[3]),
-        'shared': int(line1[4]),
-        'buff'  : int(line1[5]),
-        'cache' : int(line1[6]),
-    }
-    level = float(res['used']) / res['total']
-    detail = ';'.join(['='.join((k, str(v))) for k,v in res.iteritems()])
+    detail = [
+            ('total' , int(line1[1])),
+            ('used'  , int(line2[2])),
+            ('free'  , int(line2[3])),
+            ('shared', int(line1[4])),
+            ('buff'  , int(line1[5])),
+            ('cache' , int(line1[6])),
+        ]
+    level = float(detail[1][1]) / detail[0][1]
     return level, detail
 
 def load(ret, out, err, start=None, **kwargs):
@@ -160,16 +159,17 @@ def cpu(ret, out, err, start=None, **kwargs):
 
     diff = [sum((int(b),-int(a))) for a, b in zip(*state)]
     total   = sum(diff)
-    user    = diff[0]
-    nice    = diff[1]
-    system  = diff[2]
-    idle    = diff[3]
-    iowait  = diff[4]
-    irq     = diff[5]
-    softirq = diff[6]
-
-    level = float(total - idle) / total
-    return level, ';'.join([str(i) for i in diff]+[str(total)])
+    detail = [
+            ('user'    , diff[0]),
+            ('nice'    , diff[1]),
+            ('system'  , diff[2]),
+            ('idle'    , diff[3]),
+            ('iowait'  , diff[4]),
+            ('irq'     , diff[5]),
+            ('softirq' , diff[6]),
+        ]
+    level = float(total - detail[3][1]) / total
+    return level, detail
 
 def disk(ret, out, err, start=None, **kwargs):
     """ Get disk io."""
