@@ -263,8 +263,7 @@ def finish(info, level, detail, extra, **kwargs):
                 converted, unit, extra, detail) 
         exit(2)
     else:
-        print 'Unknown: no conditions were met'+detail
-        exit(3)
+        raise NagaExit(3, 'Unknown: no conditions were met', desc=detail)
 
 def main():
     """ Called when running naga from command line."""
@@ -291,8 +290,8 @@ def main():
     out = connect(opts[0].hostname, info, tout, opts[0].binary, 
             start, **kwargs)
     if not out[0] == 0:
-        print 'Unknown: ssh command returncode %s | out=%s;err=%s ' % out
-        exit(3)
+        raise NagaExit(3, 'ssh command returncode %s' % out[0],
+                'out=%s;err=%s ' % out[1:])
     timecheck(start, tout, 'setup')
     if info in globals().keys():
         level, detail, extra = globals()[info](out[0], out[1], out[2],
@@ -300,8 +299,24 @@ def main():
         timecheck(start, tout, 'after running connect()')
         finish(info, level, detail, extra, warn=warn, crit=crit)
     else:
-        print 'Unknown: Could not find processing method for %s' % info
-        exit(3)
+        raise NagaExit(3, 'Could not find processing method for %s' % info)
+
+class NagaExit(SystemExit):
+
+    prefix = {0: 'OK', 1: 'Warning', 2: 'Critical', 3: 'Unknown'}
     
+    def __init__(self, status, msg, desc=None):
+        self.status = status
+        self.msg = msg
+        self.desc = desc
+        print self.collate_output()
+        super(NagaExit, self).__init__()
+
+    def collate_output(self):
+        out = [self.prefix[self.status]+':', self.msg]
+        if self.desc is not None:
+            out.extend(['|', self.desc])
+        return ' '.join(out)
+
 if __name__ == "__main__":
     main()
