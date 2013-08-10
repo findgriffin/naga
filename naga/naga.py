@@ -87,6 +87,8 @@ def parse_opts():
     parser.add_option('-i', '--information', default=INFO_DEFAULT,
             choices=INFO_CHOICES.keys(),
         help='Which type of information to return.')
+    parser.add_option('-s', '--special',
+        help='Any special arguments (specific to each information type)')
 
     return parser.parse_args()
 
