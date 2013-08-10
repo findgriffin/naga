@@ -277,19 +277,18 @@ def main():
         if key not in required and val is not None:
             kwargs[key] = val
 
+    if not info in globals().keys():
+        raise NagaExit(3, 'Could not find processing method for %s' % info)
     out = connect(opts[0].hostname, info, tout, opts[0].binary, 
             start, **kwargs)
+    timecheck(start, tout, 'after running connect()')
     if not out[0] == 0:
         raise NagaExit(3, 'ssh command returncode %s' % out[0],
                 'out=%s;err=%s ' % out[1:])
-    timecheck(start, tout, 'setup')
-    if info in globals().keys():
-        level, detail, extra = globals()[info](out[0], out[1], out[2],
-                start=start, timeout=tout)
-        timecheck(start, tout, 'after running connect()')
-        finish(info, level, detail, extra, warn=warn, crit=crit)
-    else:
-        raise NagaExit(3, 'Could not find processing method for %s' % info)
+    level, detail, extra = globals()[info](out[0], out[1], out[2],
+                **kwargs)
+    timecheck(start, tout, 'after running %s()' % info)
+    finish(info, level, detail, extra, warn=warn, crit=crit)
 
 class NagaExit(SystemExit):
 
