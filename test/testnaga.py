@@ -1,12 +1,13 @@
+from naga.naga import NagaExit
 from naga import naga
-import unittest
+from unittest import TestCase
 
-class TestOptions(unittest.TestCase):
+class TestOptions(TestCase):
 
     def test_options(self):
         pass 
 
-class TestCpu(unittest.TestCase):
+class TestCpu(TestCase):
     def cpu_base(self, name):
         with open('test/stat/%s.txt' % name, 'rb') as outfile:
             out = outfile.read()
@@ -23,25 +24,52 @@ class TestCpu(unittest.TestCase):
         self.assertEqual(desc[5], ('irq', 0))
         self.assertEqual(desc[6], ('softirq', 0))
 
-class TestDisk(unittest.TestCase):
+class TestDisk(TestCase):
     def test_disk(self):
         pass
 
-class TestFilesystem(unittest.TestCase):
+class TestFilesystem(TestCase):
     def test_filesystem(self):
         pass
 
-class TestLoad(unittest.TestCase):
+class TestLoad(TestCase):
     def test_load(self):
         pass
 
-class TestMemory(unittest.TestCase):
+class TestMemory(TestCase):
     def test_memory(self):
         pass
 
-class TestUtils(unittest.TestCase):
-    def test_finish(self):
-        pass
+class TestFinish(TestCase):
+    def test_ok(self):
+        with self.assertRaises(NagaExit) as cm:
+            naga.finish('load', 0.1, 'load is good', '')
+        self.assertEqual(cm.exception.status, 0)
+    def test_warn_cusp(self):
+        with self.assertRaises(NagaExit) as cm:
+            naga.finish('load', 1.0, 'load is warning', '')
+        self.assertEqual(cm.exception.status, 1)
+    def test_warn(self):
+        with self.assertRaises(NagaExit) as cm:
+            naga.finish('load', 1.1, 'load is warning', '')
+        self.assertEqual(cm.exception.status, 1)
+    def test_crit(self):
+        with self.assertRaises(NagaExit) as cm:
+            naga.finish('load', 2.0, 'load is warning', '')
+        self.assertEqual(cm.exception.status, 2)
+    def test_crit_cusp(self):
+        with self.assertRaises(NagaExit) as cm:
+            naga.finish('load', 2.1, 'load is warning', '')
+        self.assertEqual(cm.exception.status, 2)
+    def test_ambiguous(self):
+        with self.assertRaises(NagaExit) as cm:
+            naga.finish('load', 2.0, 'load is warning', '', 
+                    warn=1.0, crit=0.9)
+        self.assertEqual(cm.exception.status, 1)
+
+                
+    
+class TestTimecheck(TestCase):
     def test_timecheck(self):
         pass
         
