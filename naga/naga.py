@@ -247,21 +247,17 @@ def finish(info, level, detail, extra, **kwargs):
     if type(detail) == list:
         detail = ';'.join(['='.join((k, str(v))) for k, v in detail])
     if warn >= crit:
-        print 'Warning: warn (%s) > crit (%s) for %s | %s' % (warn, crit,
-                info, detail)
-        exit(1)
+        raise NagaExit(1, 'warn (%s) > crit (%s) for %s' % (warn, crit,
+                info), detail)
     if level < warn and level < crit:
-        print 'OK: %s usage is %.2g%s %s | %s' % (info, converted, unit, extra,
-                detail) 
-        exit(0)
-    if level > warn and level < crit:
-        print 'Warning: %s usage is high %.2g%s %s | %s' % (info, converted,
-                unit, extra, detail) 
-        exit(1)
-    if level > crit:
-        print 'Critical: %s usage is critical %.2g%s %s | %s' % (info,
-                converted, unit, extra, detail) 
-        exit(2)
+        raise NagaExit(0, '%s usage is %.2g%s %s' % (info, converted, unit,
+            extra), detail)
+    if level >= warn and level < crit:
+        raise NagaExit(1, '%s usage is high %.2g%s %s' % (info, converted,
+                unit, extra), detail)
+    if level >= crit:
+        raise NagaExit(2, '%s usage is critical %.2g%s %s' % (info,
+                converted, unit, extra), detail)
     else:
         raise NagaExit(3, 'Unknown: no conditions were met', desc=detail)
 
