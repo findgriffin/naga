@@ -51,8 +51,7 @@ def timecheck(start_time, timeout, after, proc=None,):
     if time.time()-start_time > timeout:
         if proc is not None:
             proc.terminate()
-        print 'Unknown: timeout after %s (%ss)' % (after, timeout)
-        exit(3)
+        raise NagaExit(3, 'timeout after %s (%ss)' % (after, timeout))
 
 def parse_opts():
     """ Parse the command line options given to naga."""
@@ -122,9 +121,6 @@ def connect(hostname, info, timeout, binary, start_time=None, **kwargs):
 
 def memory(ret, out, err, **kwargs):
     """Get information about memory usage."""
-    if ret:
-        print 'Unknown: free returned: %s | %s' % (out, err)
-        exit(3)
     lines = out.splitlines()
     line1 = lines[1].split()
     line2 = lines[2].split()
@@ -141,9 +137,6 @@ def memory(ret, out, err, **kwargs):
 
 def load(ret, out, err, **kwargs):
     """Get load information."""
-    if ret:
-        print 'Unknown: loadavg returned: %s | %s' % (out, err)
-        exit(3)
     lines = out.splitlines()
     split = lines[0].split()
     cores = int(lines[1])
@@ -163,8 +156,7 @@ def cpu(ret, out, err, **kwargs):
     lines  = out.splitlines()
     length = len(lines)
     if not length % 2 == 0:
-        print 'Unknown: successive calls of /proc/stat were too different'
-        exit(3)
+        raise NagaExit(3, 'successive calls of /proc/stat were too different')
     # columns
     # user, nice, system, idle, iowait, irq, softirq
     state = [lines[0].split()[1:], lines[length/2].split()[1:]]
