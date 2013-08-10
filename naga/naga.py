@@ -236,11 +236,11 @@ def finish(info, level, detail, extra, **kwargs):
         converted = level*100
     else:
         converted = level
-    if 'warn' in kwargs:
+    if 'warn' in kwargs and kwargs['warn'] is not None:
         warn = kwargs['warn']
     else:
         warn = INFO_LEVELS[info][0]
-    if 'crit' in kwargs:
+    if 'crit' in kwargs and kwargs['crit'] is not None:
         crit = kwargs['crit']
     else:
         crit = INFO_LEVELS[info][1]
