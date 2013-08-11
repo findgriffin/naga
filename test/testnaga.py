@@ -70,8 +70,20 @@ class TestLoad(TestCase):
         self.assertEqual(desc[6], ('cores', 2))
 
 class TestMemory(TestCase):
+    """ Collection of tests for memory(..)"""
+
     def test_memory(self):
-        pass
+        """Test memory(..)"""
+        level, desc, extra = run_info('memory', 'basic')
+        self.assertAlmostEqual(level, 0.475, places=3)
+        self.assertEqual(extra, '')
+        self.assertEqual(len(desc), 6)
+        self.assertEqual(desc[0], ('total', 7960))
+        self.assertEqual(desc[1], ('used', 3780))
+        self.assertEqual(desc[2], ('free', 4180))
+        self.assertEqual(desc[3], ('shared', 0))
+        self.assertEqual(desc[4], ('buff', 475))
+        self.assertEqual(desc[5], ('cache', 2718))
 
 class TestFinish(TestCase):
     def test_ok(self):
