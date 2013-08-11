@@ -159,7 +159,7 @@ def load(ret, out, err, **kwargs):
            ('last', split[4]),
            ('cores', cores),
             ]
-    return float(split[0])/cores, desc, ''
+    return float(split[0])/cores, desc, 'x %s cores' % cores
 
 def cpu(ret, out, err, **kwargs):
     """Get cpu usage."""
