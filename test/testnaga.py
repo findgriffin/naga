@@ -14,6 +14,7 @@ class TestCpu(TestCase):
             return naga.cpu(0, out, '')
             
     def test_basic(self):
+        """Test cpu(..)"""
         level, desc, extra = self.cpu_base('basic')
         self.assertEqual(level, 0.007462686567164179)
         self.assertEqual(desc[0], ('user', 2))
@@ -23,6 +24,7 @@ class TestCpu(TestCase):
         self.assertEqual(desc[4], ('iowait', 0))
         self.assertEqual(desc[5], ('irq', 0))
         self.assertEqual(desc[6], ('softirq', 0))
+        self.assertEqual(extra, '')
 
 class TestDisk(TestCase):
     def disk_base(self, name):

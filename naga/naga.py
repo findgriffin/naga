@@ -168,8 +168,8 @@ def cpu(ret, out, err, **kwargs):
     if 'special' in kwargs:
         cpu_n = kwargs['special']
     else: 
-        cpu_n = 'cpu'
-    if cpu_n == 'cpu': 
+        cpu_n = ''
+    if cpu_n == '': 
         offset = 0
     elif cpu_n.startswith('cpu') and cpu_n in out:
         cpu_n = cpu_n
