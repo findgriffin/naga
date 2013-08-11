@@ -7,16 +7,20 @@ class TestOptions(TestCase):
     def test_options(self):
         pass 
 
+def run_info(info, name):
+    """ Get sample output file and use it for input to naga info method"""
+    with open('test/static/%s_%s.txt' % (info, name), 'rb') as outfile:
+        out = outfile.read()
+        return getattr(naga, info)(0, out, '')
+
 class TestCpu(TestCase):
-    def cpu_base(self, name):
-        with open('test/static/cpu_%s.txt' % name, 'rb') as outfile:
-            out = outfile.read()
-            return naga.cpu(0, out, '')
             
     def test_basic(self):
         """Test cpu(..)"""
-        level, desc, extra = self.cpu_base('basic')
+        level, desc, extra = run_info('cpu', 'basic')
+        self.assertEqual(extra, '')
         self.assertEqual(level, 0.007462686567164179)
+        self.assertEqual(len(desc), 7)
         self.assertEqual(desc[0], ('user', 2))
         self.assertEqual(desc[1], ('nice', 0))
         self.assertEqual(desc[2], ('system', 1))
@@ -24,32 +28,21 @@ class TestCpu(TestCase):
         self.assertEqual(desc[4], ('iowait', 0))
         self.assertEqual(desc[5], ('irq', 0))
         self.assertEqual(desc[6], ('softirq', 0))
-        self.assertEqual(extra, '')
 
 class TestDisk(TestCase):
-    def disk_base(self, name):
-        """ Get sample output file and use it for input to disk(..)"""
-        with open('test/static/disk_%s.txt' % name, 'rb') as outfile:
-            out = outfile.read()
-            return naga.disk(0, out, '')
 
     def test_basic(self):
         """Test disk(..)"""
-        level, desc, extra = self.disk_base('basic')
+        level, desc, extra = run_info('disk', 'basic')
         self.assertEqual(level, 10)
         self.assertEqual(desc, 'mb_in=5;mb_out=5')
 
 class TestFilesystem(TestCase):
     """ Collection of tests for filesystem(..)"""
-    def filesystem_base(self, name):
-        """ Get sample output file and use it for input to filesystem(..)"""
-        with open('test/static/filesystem_%s.txt' % name, 'rb') as outfile:
-            out = outfile.read()
-            return naga.filesystem(0, out, '')
 
     def test_basic(self):
         """Test disk(..)"""
-        level, desc, extra = self.filesystem_base('basic')
+        level, desc, extra = run_info('filesystem', 'basic')
         self.assertAlmostEqual(level, 0.208, places=3)
         self.assertEqual(len(desc), 4)
         self.assertEqual(extra, 'on /')
