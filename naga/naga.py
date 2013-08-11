@@ -125,7 +125,7 @@ def connect(hostname, info, timeout, binary, start_time=None, **kwargs):
             stderr=subprocess.PIPE)
     while proc.poll() is None:
         timecheck(start_time, timeout, 'waiting for Popen', proc)
-        sleep = float(timeout)/10
+        sleep = min(float(timeout)/10,1)
         logging.debug('waiting for proc.poll(), sleeping for %s seconds' %
                 sleep)
         time.sleep(sleep)
