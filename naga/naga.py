@@ -55,11 +55,20 @@ def timecheck(start_time, timeout, after, proc=None,):
 
 def parse_opts():
     """ Parse the command line options given to naga."""
-    desc = """
-    A python plugin for the Nagios monitoring system that connects to remote
-    hosts via ssh.  """
-
-    parser = optparse.OptionParser(description=desc)
+    desc = 'A python plugin for the Nagios monitoring system that connects \
+to remote hosts via ssh.'
+    epilog = """Naga supports the following information types and special \
+arguments:
+ INFO        SPECIAL ARGUMENTS
+ load        n/a
+ memory      n/a
+ cpu         cpu0, cpu1... (default is total)
+ disk        n/a
+ network     wlan0, eth0... (default is total)
+ filesystem  /, /dev/sda1... (default is /)
+"""
+    optparse.OptionParser.format_epilog = lambda self, formatter: self.epilog
+    parser = optparse.OptionParser(description=desc, epilog=epilog)
 
     # optparse automatically sets up --help for us
     parser.add_option('-t', '--timeout', default='30',
@@ -69,15 +78,14 @@ def parse_opts():
     parser.add_option('-c', '--critical',
         help='Critical threshold (percentage)')
     parser.add_option('-H', '--hostname', default='localhost',
-        help='The hostname or ip of the system to connect to.')
+        help='The hostname or ip of target system.')
     parser.add_option('-v', '--verbose', action='store_true',
         help='Enable verbose output.')
 
     parser.add_option('-b', '--binary', default='/usr/bin/ssh',
         help='Path to ssh binary on host.')
     parser.add_option('-l', '--logname',
-        help='The login/username used to connect to the remote host. \
-                (defaults to current user)')
+        help='The login/username on remote host. (defaults to current user)')
     parser.add_option('-a', '--authentication',
         help='Authentication password for user at remote host')
     parser.add_option('-p', '--port',
