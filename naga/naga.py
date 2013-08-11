@@ -163,19 +163,24 @@ def load(ret, out, err, **kwargs):
 
 def cpu(ret, out, err, **kwargs):
     """Get cpu usage."""
+    if 'special' in kwargs:
+        cpu_n = kwargs['special']
+    else: 
+        cpu_n = 'cpu'
+    if cpu_n == 'cpu': 
+        offset = 0
+    elif cpu_n.startswith('cpu') and cpu_n in out:
+        cpu_n = cpu_n
+        offset = int(cpu_n[3:])
+    else:
+        raise NagaExit(3, 'invalid cpu: %s' % cpu_n)
     lines  = out.splitlines()
     length = len(lines)
-    if not 'special' in kwargs:
-        offset = 0
-    elif kwargs['special'].startswith('cpu'):
-        offset = int(kwargs['special'][3:])
-    else:
-        raise NagaExit(3, 'invalid cpu: %s' % kwargs['special'])
     if not length % 2 == 0:
         raise NagaExit(3, 'successive calls of /proc/stat were too different')
     # columns
     # user, nice, system, idle, iowait, irq, softirq
-    state = [lines[0].split()[1:], lines[length/2].split()[1:]]
+    state = [lines[0+offset].split()[1:], lines[length/2+offset].split()[1:]]
     diff = [sum((int(b), -int(a))) for a, b in zip(*state)]
     total   = sum(diff)
     detail = [
@@ -188,7 +193,7 @@ def cpu(ret, out, err, **kwargs):
             ('softirq' , diff[6]),
         ]
     level = float(total - detail[3][1]) / total
-    return level, detail, ''
+    return level, detail, cpu_n 
 
 def disk(ret, out, err, start=None, **kwargs):
     """ Get disk io."""
