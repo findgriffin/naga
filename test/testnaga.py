@@ -54,7 +54,10 @@ class TestFilesystem(TestCase):
 
 class TestLoad(TestCase):
     def test_load(self):
-        pass
+        """Test load(..)"""
+        level, desc, extra = run_info('load', 'basic')
+        self.assertAlmostEqual(level, 0.208, places=3)
+        self.assertEqual(desc, 4)
 
 class TestMemory(TestCase):
     def test_memory(self):
