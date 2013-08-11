@@ -195,7 +195,7 @@ def cpu(ret, out, err, **kwargs):
     level = float(total - detail[3][1]) / total
     return level, detail, cpu_n 
 
-def disk(ret, out, err, start=None, **kwargs):
+def disk(ret, out, err, **kwargs):
     """ Get disk io."""
     mega = 1024*1024
     if 'block' in kwargs:
