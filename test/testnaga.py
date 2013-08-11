@@ -9,7 +9,7 @@ class TestOptions(TestCase):
 
 class TestCpu(TestCase):
     def cpu_base(self, name):
-        with open('test/stat/%s.txt' % name, 'rb') as outfile:
+        with open('test/static/cpu_%s.txt' % name, 'rb') as outfile:
             out = outfile.read()
             return naga.cpu(0, out, '')
             
