@@ -205,10 +205,10 @@ def filesystem(ret, out, err, **kwargs):
         # filesystem blocks used available use% mounted
         systems[parts[5]] = [parts[0], int(parts[1]), int(parts[2]), 
                 int(parts[3])]
-    if not filesystem in kwargs:
+    if not 'special' in kwargs:
         fsys = '/'
     else:
-        fsys = kwargs['fsys']
+        fsys = kwargs['special']
     if not fsys in systems:
         print 'Unknown: could not find filesystem %s | %s' % (fsys, out)
         exit(3)
