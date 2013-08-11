@@ -165,6 +165,12 @@ def cpu(ret, out, err, **kwargs):
     """Get cpu usage."""
     lines  = out.splitlines()
     length = len(lines)
+    if not 'special' in kwargs:
+        offset = 0
+    elif kwargs['special'].startswith('cpu'):
+        offset = int(kwargs['special'][3:])
+    else:
+        raise NagaExit(3, 'invalid cpu: %s' % kwargs['special'])
     if not length % 2 == 0:
         raise NagaExit(3, 'successive calls of /proc/stat were too different')
     # columns
