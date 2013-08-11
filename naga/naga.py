@@ -143,7 +143,7 @@ def memory(ret, out, err, **kwargs):
             ('cache' , int(line1[6])),
         ]
     level = float(detail[1][1]) / detail[0][1]
-    return level, detail
+    return level, detail, ''
 
 def load(ret, out, err, **kwargs):
     """Get load information."""
