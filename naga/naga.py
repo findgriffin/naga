@@ -97,6 +97,8 @@ arguments:
         help='Which type of information to return.')
     parser.add_option('-s', '--special',
         help='Any special arguments (specific to each information type)')
+    parser.add_option('--capture',
+        help='Capture output of ssh, used for testing and debugging only.')
 
     return parser.parse_args()
 
@@ -304,10 +306,20 @@ def main():
     if not out[0] == 0:
         raise NagaExit(3, 'ssh command returncode %s' % out[0],
                 'out=%s;err=%s ' % out[1:])
+        
+    if 'capture' in kwargs:
+        capture_output(out, kwargs['capture'])
+
     level, detail, extra = globals()[info](out[0], out[1], out[2],
                 **kwargs)
     timecheck(start, tout, 'after running %s()' % info)
     finish(info, level, detail, extra, warn=warn, crit=crit)
+
+def capture_output(out, location):
+    print 'capturing output'
+    with open(location, 'wb') as capt:
+        capt.write(out[1])
+
 
 class NagaExit(SystemExit):
 
