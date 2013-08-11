@@ -25,8 +25,17 @@ class TestCpu(TestCase):
         self.assertEqual(desc[6], ('softirq', 0))
 
 class TestDisk(TestCase):
-    def test_disk(self):
-        pass
+    def disk_base(self, name):
+        """ Get sample output file and use it for input to disk(..)"""
+        with open('test/static/disk_%s.txt' % name, 'rb') as outfile:
+            out = outfile.read()
+            return naga.disk(0, out, '')
+
+    def test_basic(self):
+        """Test disk(..)"""
+        level, desc, extra = self.disk_base('basic')
+        self.assertEqual(level, 10)
+        self.assertEqual(desc, 'mb_in=5;mb_out=5')
 
 class TestFilesystem(TestCase):
     def test_filesystem(self):
