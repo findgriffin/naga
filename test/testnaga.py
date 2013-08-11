@@ -40,8 +40,24 @@ class TestDisk(TestCase):
         self.assertEqual(desc, 'mb_in=5;mb_out=5')
 
 class TestFilesystem(TestCase):
-    def test_filesystem(self):
-        pass
+    """ Collection of tests for filesystem(..)"""
+    def filesystem_base(self, name):
+        """ Get sample output file and use it for input to filesystem(..)"""
+        with open('test/static/filesystem_%s.txt' % name, 'rb') as outfile:
+            out = outfile.read()
+            return naga.filesystem(0, out, '')
+
+    def test_basic(self):
+        """Test disk(..)"""
+        level, desc, extra = self.filesystem_base('basic')
+        self.assertAlmostEqual(level, 0.208, places=3)
+        self.assertEqual(len(desc), 4)
+        self.assertEqual(extra, 'on /')
+        self.assertEqual(desc[0], ('/', '/dev/sdd5;115065400;23939856'))
+        self.assertEqual(desc[1], ('/mnt/bigdisk', '/dev/sdc1;2884152536;1472177232'))
+        self.assertEqual(desc[2], ('/media/david/d5fd6b6e-c3fb-4399-bee7-8ae6bfe985ba', 
+            '/dev/md1;952912348;521857176'))
+        self.assertEqual(desc[3], ('/mnt/backup', '/dev/md1;952912348;521857176'))
 
 class TestLoad(TestCase):
     def test_load(self):

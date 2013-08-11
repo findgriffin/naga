@@ -1,0 +1,12 @@
+Filesystem            1K-blocks       Used  Available Use% Mounted on
+/dev/sdd5             115065400   23939856   85273896  22% /
+none                          4          0          4   0% /sys/fs/cgroup
+udev                    4025464         12    4025452   1% /dev
+tmpfs                    815132       1216     813916   1% /run
+none                       5120          0       5120   0% /run/lock
+none                    4075656        944    4074712   1% /run/shm
+none                     102400         60     102340   1% /run/user
+/dev/sdc1            2884152536 1472177232 1265462052  54% /mnt/bigdisk
+/home/david/.Private  115065400   23939856   85273896  22% /home/david
+/dev/md1              952912348  521857176  382643292  58% /media/david/d5fd6b6e-c3fb-4399-bee7-8ae6bfe985ba
+/dev/md1              952912348  521857176  382643292  58% /mnt/backup
