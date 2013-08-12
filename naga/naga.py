@@ -182,8 +182,9 @@ def cpu(ret, out, err, **kwargs):
         raise NagaExit(3, 'successive calls of /proc/stat were too different')
     # columns
     # user, nice, system, idle, iowait, irq, softirq
-    state = [lines[0+offset].split()[1:], lines[length/2+offset].split()[1:]]
-    diff = [sum((int(b), -int(a))) for a, b in zip(*state)]
+    state_t0 = lines[0+offset].split()[1:]
+    state_t1 = lines[length/2+offset].split()[1:]
+    diff = [sum((int(b), -int(a))) for a, b in zip(state_t0, state_t1)]
     total   = sum(diff)
     detail = [
             ('user'    , diff[0]),
