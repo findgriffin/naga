@@ -85,6 +85,22 @@ class TestMemory(TestCase):
         self.assertEqual(desc[4], ('buff', 475))
         self.assertEqual(desc[5], ('cache', 2718))
 
+class TestNetwork(TestCase):
+    """ Collection of tests for network(..)"""
+
+    def test_network(self):
+        """Test network(..)"""
+        level, desc, extra = run_info('network', 'basic')
+        self.assertAlmostEqual(level, 0.668, places=3)
+        self.assertEqual(extra, 'on eth4')
+        self.assertEqual(len(desc), 6)
+        self.assertEqual(desc[0], ('eth4_rx', 581222))
+        self.assertEqual(desc[1], ('eth4_tx', 118789))
+        self.assertEqual(desc[2], ('lo_rx', 536))
+        self.assertEqual(desc[3], ('lo_tx', 344))
+        self.assertEqual(desc[4], ('rename3_rx', 0))
+        self.assertEqual(desc[5], ('rename3_tx', 0))
+
 class TestFinish(TestCase):
     def test_ok(self):
         with self.assertRaises(NagaExit) as cm:
