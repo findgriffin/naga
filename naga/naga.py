@@ -7,6 +7,7 @@ line.
 import optparse
 import subprocess
 import time
+import logging
 
 DIVIDE = 'NAGA_DIVIDE'
 INFO_DEFAULT = 'load'
@@ -119,13 +120,15 @@ def connect(hostname, info, timeout, binary, start_time=None, **kwargs):
         hostname += str(kwargs['port'])
     cmd1.append('%s@%s' % (user, hostname))
     cmd = cmd1 + ['"'] + INFO_CHOICES[info] + ['"']
-    if 'verbose' in kwargs:
-        print 'about to Popen %s' % ' '.join(cmd)
+    logging.debug('about to Popen %s' % ' '.join(cmd))
     proc = subprocess.Popen(' '.join(cmd), shell=True, stdout=subprocess.PIPE, 
             stderr=subprocess.PIPE)
     while proc.poll() is None:
         timecheck(start_time, timeout, 'waiting for Popen', proc)
-        time.sleep(float(timeout)/10)
+        sleep = min(float(timeout)/10,1)
+        logging.debug('waiting for proc.poll(), sleeping for %s seconds' %
+                sleep)
+        time.sleep(sleep)
     ret = proc.returncode
     out = proc.stdout.read()
     err = proc.stderr.read()
@@ -168,8 +171,8 @@ def cpu(ret, out, err, **kwargs):
     if 'special' in kwargs:
         cpu_n = kwargs['special']
     else: 
-        cpu_n = 'cpu'
-    if cpu_n == 'cpu': 
+        cpu_n = ''
+    if cpu_n == '': 
         offset = 0
     elif cpu_n.startswith('cpu') and cpu_n in out:
         cpu_n = cpu_n
@@ -306,6 +309,12 @@ def main():
     required = ['information', 'hostname', 'binary', 'timeout', 'warning',
             'critical']
     opts = parse_opts()
+    if opts[0].verbose:
+        logging.basicConfig(level=logging.DEBUG)
+    elif opts[0].capture:
+        logging.basicConfig(level=logging.INFO)
+    else:
+        logging.basicConfig(level=logging.WARNING)
     info = opts[0].information
     tout = float(opts[0].timeout)
     try:
@@ -323,8 +332,12 @@ def main():
 
     if not info in globals().keys():
         raise NagaExit(3, 'Could not find processing method for %s' % info)
+    logging.debug('about to connect to %s' % opts[0].hostname)
     out = connect(opts[0].hostname, info, tout, opts[0].binary, 
             start, **kwargs)
+    logging.debug('return of ssh command: %s' % out[0])
+    logging.debug('stdout of ssh command: %s' % out[1])
+    logging.debug('stderr of ssh command: %s' % out[2])
     timecheck(start, tout, 'after running connect()')
     if not out[0] == 0:
         raise NagaExit(3, 'ssh command returncode %s' % out[0],
@@ -339,7 +352,7 @@ def main():
     finish(info, level, detail, extra, warn=warn, crit=crit)
 
 def capture_output(out, location):
-    print 'capturing output'
+    logging.info('capturing output into %s' % location)
     with open(location, 'wb') as capt:
         capt.write(out[1])
 

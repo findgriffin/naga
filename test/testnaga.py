@@ -7,15 +7,20 @@ class TestOptions(TestCase):
     def test_options(self):
         pass 
 
+def run_info(info, name):
+    """ Get sample output file and use it for input to naga info method"""
+    with open('test/static/%s_%s.txt' % (info, name), 'rb') as outfile:
+        out = outfile.read()
+        return getattr(naga, info)(0, out, '')
+
 class TestCpu(TestCase):
-    def cpu_base(self, name):
-        with open('test/static/cpu_%s.txt' % name, 'rb') as outfile:
-            out = outfile.read()
-            return naga.cpu(0, out, '')
             
     def test_basic(self):
-        level, desc, extra = self.cpu_base('basic')
+        """Test cpu(..)"""
+        level, desc, extra = run_info('cpu', 'basic')
+        self.assertEqual(extra, '')
         self.assertEqual(level, 0.007462686567164179)
+        self.assertEqual(len(desc), 7)
         self.assertEqual(desc[0], ('user', 2))
         self.assertEqual(desc[1], ('nice', 0))
         self.assertEqual(desc[2], ('system', 1))
@@ -25,20 +30,60 @@ class TestCpu(TestCase):
         self.assertEqual(desc[6], ('softirq', 0))
 
 class TestDisk(TestCase):
-    def test_disk(self):
-        pass
+
+    def test_basic(self):
+        """Test disk(..)"""
+        level, desc, extra = run_info('disk', 'basic')
+        self.assertEqual(level, 10)
+        self.assertEqual(desc, 'mb_in=5;mb_out=5')
 
 class TestFilesystem(TestCase):
-    def test_filesystem(self):
-        pass
+    """ Collection of tests for filesystem(..)"""
+
+    def test_basic(self):
+        """Test disk(..)"""
+        level, desc, extra = run_info('filesystem', 'basic')
+        self.assertAlmostEqual(level, 0.208, places=3)
+        self.assertEqual(len(desc), 4)
+        self.assertEqual(extra, 'on /')
+        self.assertEqual(desc[0], ('/', '/dev/sdd5;115065400;23939856'))
+        self.assertEqual(desc[1], ('/mnt/bigdisk', '/dev/sdc1;2884152536;1472177232'))
+        self.assertEqual(desc[2], ('/media/david/d5fd6b6e-c3fb-4399-bee7-8ae6bfe985ba', 
+            '/dev/md1;952912348;521857176'))
+        self.assertEqual(desc[3], ('/mnt/backup', '/dev/md1;952912348;521857176'))
 
 class TestLoad(TestCase):
+    """ Collection of tests for load(..)"""
+
     def test_load(self):
-        pass
+        """Test load(..)"""
+        level, desc, extra = run_info('load', 'basic')
+        self.assertAlmostEqual(level, 0.095, places=3)
+        self.assertEqual(extra, 'x 2 cores')
+        self.assertEqual(len(desc), 7)
+        self.assertEqual(desc[0], ('5min', '0.19'))
+        self.assertEqual(desc[1], ('10min', '0.22'))
+        self.assertEqual(desc[2], ('15min', '0.30'))
+        self.assertEqual(desc[3], ('running', '4'))
+        self.assertEqual(desc[4], ('procs', '554'))
+        self.assertEqual(desc[5], ('last', '32186'))
+        self.assertEqual(desc[6], ('cores', 2))
 
 class TestMemory(TestCase):
+    """ Collection of tests for memory(..)"""
+
     def test_memory(self):
-        pass
+        """Test memory(..)"""
+        level, desc, extra = run_info('memory', 'basic')
+        self.assertAlmostEqual(level, 0.475, places=3)
+        self.assertEqual(extra, '')
+        self.assertEqual(len(desc), 6)
+        self.assertEqual(desc[0], ('total', 7960))
+        self.assertEqual(desc[1], ('used', 3780))
+        self.assertEqual(desc[2], ('free', 4180))
+        self.assertEqual(desc[3], ('shared', 0))
+        self.assertEqual(desc[4], ('buff', 475))
+        self.assertEqual(desc[5], ('cache', 2718))
 
 class TestFinish(TestCase):
     def test_ok(self):
