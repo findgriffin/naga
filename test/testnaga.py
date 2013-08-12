@@ -55,7 +55,7 @@ class TestFilesystem(TestCase):
 class TestLoad(TestCase):
     """ Collection of tests for load(..)"""
 
-    def test_load(self):
+    def test_basic(self):
         """Test load(..)"""
         level, desc, extra = run_info('load', 'basic')
         self.assertAlmostEqual(level, 0.095, places=3)
@@ -72,7 +72,7 @@ class TestLoad(TestCase):
 class TestMemory(TestCase):
     """ Collection of tests for memory(..)"""
 
-    def test_memory(self):
+    def test_basic(self):
         """Test memory(..)"""
         level, desc, extra = run_info('memory', 'basic')
         self.assertAlmostEqual(level, 0.475, places=3)
@@ -88,7 +88,7 @@ class TestMemory(TestCase):
 class TestNetwork(TestCase):
     """ Collection of tests for network(..)"""
 
-    def test_network(self):
+    def test_basic(self):
         """Test network(..)"""
         level, desc, extra = run_info('network', 'basic')
         self.assertAlmostEqual(level, 0.668, places=3)
