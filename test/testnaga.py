@@ -11,7 +11,7 @@ def run_info(info, name):
     """ Get sample output file and use it for input to naga info method"""
     with open('test/static/%s_%s.txt' % (info, name), 'rb') as outfile:
         out = outfile.read()
-        return getattr(naga, info)(0, out, '')
+        return getattr(naga, info)(out)
 
 class TestCpu(TestCase):
             

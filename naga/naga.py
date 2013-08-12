@@ -120,13 +120,13 @@ def connect(hostname, info, timeout, binary, start_time=None, **kwargs):
         hostname += str(kwargs['port'])
     cmd1.append('%s@%s' % (user, hostname))
     cmd = cmd1 + ['"'] + INFO_CHOICES[info] + ['"']
-    logging.debug('about to Popen %s' % ' '.join(cmd))
+    logging.debug('about to Popen %s', ' '.join(cmd))
     proc = subprocess.Popen(' '.join(cmd), shell=True, stdout=subprocess.PIPE, 
             stderr=subprocess.PIPE)
     while proc.poll() is None:
         timecheck(start_time, timeout, 'waiting for Popen', proc)
-        sleep = min(float(timeout)/10,1)
-        logging.debug('waiting for proc.poll(), sleeping for %s seconds' %
+        sleep = min(float(timeout)/10, 1)
+        logging.debug('waiting for proc.poll(), sleeping for %s seconds', 
                 sleep)
         time.sleep(sleep)
     ret = proc.returncode
@@ -134,7 +134,7 @@ def connect(hostname, info, timeout, binary, start_time=None, **kwargs):
     err = proc.stderr.read()
     return ret, out, err
 
-def memory(ret, out, err, **kwargs):
+def memory(out, **kwargs):
     """Get information about memory usage."""
     lines = out.splitlines()
     line1 = lines[1].split()
@@ -150,7 +150,7 @@ def memory(ret, out, err, **kwargs):
     level = float(detail[1][1]) / detail[0][1]
     return level, detail, ''
 
-def load(ret, out, err, **kwargs):
+def load(out, **kwargs):
     """Get load information."""
     lines = out.splitlines()
     split = lines[0].split()
@@ -166,7 +166,7 @@ def load(ret, out, err, **kwargs):
             ]
     return float(split[0])/cores, desc, 'x %s cores' % cores
 
-def cpu(ret, out, err, **kwargs):
+def cpu(out, **kwargs):
     """Get cpu usage."""
     if 'special' in kwargs:
         cpu_n = kwargs['special']
@@ -201,7 +201,7 @@ def cpu(ret, out, err, **kwargs):
     level = float(total - detail[3][1]) / total
     return level, detail, cpu_n 
 
-def disk(ret, out, err, **kwargs):
+def disk(out, **kwargs):
     """ Get disk io."""
     mega = 1024*1024
     if 'block' in kwargs:
@@ -214,7 +214,7 @@ def disk(ret, out, err, **kwargs):
     desc = 'mb_in=%s;mb_out=%s' % (mb_in, mb_out)
     return mb_in+mb_out, desc, ''
 
-def filesystem(ret, out, err, **kwargs):
+def filesystem(out, **kwargs):
     """ Get filesystem usage."""
     systems = {}
     for line in out.splitlines()[1:]:
@@ -239,9 +239,8 @@ def filesystem(ret, out, err, **kwargs):
 
     return float(fs_info[2]) / fs_info[1], detail, 'on %s' % fsys
 
-def network(ret, out, err, **kwargs):
+def network(out, **kwargs):
     """ Get network usage."""
-    if_exclude = ['lo']
     if_default = ['eth', 'wlan', 'wwan']
     ifaces = out.split(DIVIDE)[0].split()
     data   = out.split(DIVIDE)[1].split()
@@ -259,12 +258,11 @@ def network(ret, out, err, **kwargs):
                     break
             if iface is not None:
                 break
-    n = len(ifaces)
-    result = [data[i:i+n] for i in xrange(0, len(data), n)]
-    rx_diff = [sum((int(b), -int(a))) for a, b in zip(result[0],result[2])]
-    tx_diff = [sum((int(b), -int(a))) for a, b in zip(result[1],result[3])]
+    result = [data[i:i+len(ifaces)] for i in xrange(0, len(data), len(ifaces))]
+    rx_diff = [sum((int(b), -int(a))) for a, b in zip(result[0], result[2])]
+    tx_diff = [sum((int(b), -int(a))) for a, b in zip(result[1], result[3])]
     desc = []
-    for i in xrange(n):
+    for i in xrange(len(ifaces)):
         desc.append((ifaces[i]+'_rx', rx_diff[i]))
         desc.append((ifaces[i]+'_tx', tx_diff[i]))
     i = ifaces.index(iface)
@@ -333,12 +331,12 @@ def main():
 
     if not info in globals().keys():
         raise NagaExit(3, 'Could not find processing method for %s' % info)
-    logging.debug('about to connect to %s' % opts[0].hostname)
+    logging.debug('about to connect to %s', opts[0].hostname)
     out = connect(opts[0].hostname, info, tout, opts[0].binary, 
             start, **kwargs)
-    logging.debug('return of ssh command: %s' % out[0])
-    logging.debug('stdout of ssh command: %s' % out[1])
-    logging.debug('stderr of ssh command: %s' % out[2])
+    logging.debug('return of ssh command: %s', out[0])
+    logging.debug('stdout of ssh command: %s', out[1])
+    logging.debug('stderr of ssh command: %s', out[2])
     timecheck(start, tout, 'after running connect()')
     if not out[0] == 0:
         raise NagaExit(3, 'ssh command returncode %s' % out[0],
@@ -347,18 +345,19 @@ def main():
     if 'capture' in kwargs:
         capture_output(out, kwargs['capture'])
 
-    level, detail, extra = globals()[info](out[0], out[1], out[2],
-                **kwargs)
+    level, detail, extra = globals()[info](out[1], **kwargs)
     timecheck(start, tout, 'after running %s()' % info)
     finish(info, level, detail, extra, warn=warn, crit=crit)
 
 def capture_output(out, location):
-    logging.info('capturing output into %s' % location)
+    """Capture the output out (usually of ssh command) and print to file."""
+    logging.info('capturing output into %s', location)
     with open(location, 'wb') as capt:
         capt.write(out[1])
 
 
 class NagaExit(SystemExit):
+    """Raised when we want to exit from naga."""
 
     prefix = {0: 'OK', 1: 'Warning', 2: 'Critical', 3: 'Unknown'}
     
@@ -370,6 +369,7 @@ class NagaExit(SystemExit):
         super(NagaExit, self).__init__()
 
     def collate_output(self):
+        """Produce output conforming to nagios plugin guidelines."""
         out = [self.prefix[self.status]+':', self.msg]
         if self.desc is not None:
             out.extend(['|', self.desc])
