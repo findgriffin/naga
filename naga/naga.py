@@ -237,12 +237,34 @@ def filesystem(ret, out, err, **kwargs):
 
 def network(ret, out, err, **kwargs):
     """ Get network usage."""
+    if_exclude = ['lo']
+    if_default = ['eth', 'wlan', 'wwan']
     ifaces = out.split(DIVIDE)[0].split()
     data   = out.split(DIVIDE)[1].split()
+    iface = None
+    if 'special' in kwargs:
+        if kwargs['special'] in ifaces:
+            iface = kwargs['special']
+        else:
+            raise NagaExit(3, 'invalid interface %s' % kwargs['special'])
+    else:
+        for i in if_default:
+            for j in ifaces:
+                if j.startswith(i) and data[ifaces.index(j)] != 0:
+                    iface = j
+                    break
+            if iface is not None:
+                break
     n = len(ifaces)
     result = [data[i:i+n] for i in xrange(0, len(data), n)]
-    
-    raise NotImplementedError
+    rx_diff = [sum((int(b), -int(a))) for a, b in zip(result[0],result[2])]
+    tx_diff = [sum((int(b), -int(a))) for a, b in zip(result[0],result[2])]
+    desc = []
+    for i in xrange(n):
+        desc.append((ifaces[i]+'_rx', rx_diff[i]))
+        desc.append((ifaces[i]+'_tx', tx_diff[i]))
+    i = ifaces.index(iface)
+    return rx_diff[i]+tx_diff[i], desc, 'on %s' % iface
 
 def finish(info, level, detail, extra, **kwargs):
     """ Exit with correct status and message."""
