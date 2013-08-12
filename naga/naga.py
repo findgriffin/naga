@@ -268,7 +268,8 @@ def network(ret, out, err, **kwargs):
         desc.append((ifaces[i]+'_rx', rx_diff[i]))
         desc.append((ifaces[i]+'_tx', tx_diff[i]))
     i = ifaces.index(iface)
-    return rx_diff[i]+tx_diff[i], desc, 'on %s' % iface
+    level = (rx_diff[i]+tx_diff[i])/1024.0/1024
+    return level, desc, 'on %s' % iface
 
 def finish(info, level, detail, extra, **kwargs):
     """ Exit with correct status and message."""
