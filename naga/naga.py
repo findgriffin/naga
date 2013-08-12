@@ -262,7 +262,7 @@ def network(ret, out, err, **kwargs):
     n = len(ifaces)
     result = [data[i:i+n] for i in xrange(0, len(data), n)]
     rx_diff = [sum((int(b), -int(a))) for a, b in zip(result[0],result[2])]
-    tx_diff = [sum((int(b), -int(a))) for a, b in zip(result[0],result[2])]
+    tx_diff = [sum((int(b), -int(a))) for a, b in zip(result[1],result[3])]
     desc = []
     for i in xrange(n):
         desc.append((ifaces[i]+'_rx', rx_diff[i]))
