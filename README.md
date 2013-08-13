@@ -1,5 +1,4 @@
-naga
-====
+# naga
 
 A python plugin for the Nagios monitoring system that connects to remote hosts
 via ssh. 
@@ -28,8 +27,8 @@ the remote machine.
 As of 13 Aug 2013 Naga has been tested on Ubuntu 12.04, 13.04 and RedHat 6.4. A
 small python test suite (using unittest/nose) is also provided. 
 
-INSTALLATION
-------------
+### Installation
+
 
 To install copy naga.py to /usr/lib/nagios/plugins/ or wherever you have your
 nagios plugins installed. You then need to define a command in your nagios
