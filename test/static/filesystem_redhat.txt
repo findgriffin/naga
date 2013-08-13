@@ -1,0 +1,17 @@
+Filesystem           1K-blocks      Used Available Use% Mounted on
+/dev/sda1            286449848  93215152 178683824  35% /
+varrun                 2075168        84   2075084   1% /var/run
+varlock                2075168         4   2075164   1% /var/lock
+udev                   2075168        52   2075116   1% /dev
+devshm                 2075168         0   2075168   0% /dev/shm
+longreef:/data/testing
+                     950037408 102931072 798068736  12% /tehzeeb/testing
+orion:/export/home/atrax
+                     927471136 687451840 192906496  79% /home/atrax
+toshiba-rd:/mfp      201585632 101868128  89477504  54% /toshiba_rd/mfp
+toshiba-rd:/export/home/redback
+                      30237664  15740416  12961248  55% /home/redback
+toshiba-rd:/export/redback
+                     555571104 445646240  81708992  85% /toshiba_rd/redback
+toshiba-rd:/export/tools
+                     100791744  63026880  32644864  66% /toshiba_rd/tools
