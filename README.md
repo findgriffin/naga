@@ -8,7 +8,6 @@ The key requirements of naga are:
  * Few dependencies on the local host i.e. nagios server. (only python 2.6+)
  * Conform to Nagios [plugin gudelines][pgl].
 
-
 Naga can collect the following kinds of information:
  * load 
  * memory (used/free space)
@@ -17,15 +16,12 @@ Naga can collect the following kinds of information:
  * filesystem (used/free space)
  * network (io)
 
-[pgl]: http://nagiosplug.sourceforge.net/developer-guidelines.html
 
 Obviously since naga connects to remote machines via ssh it will not be
 suitable for monitoring large numbers of machines. The intended use cases for
 naga are for when you can't or don't want to install any special software on
 the remote machine.
 
-As of 13 Aug 2013 Naga has been tested on Ubuntu 12.04, 13.04 and RedHat 6.4. A
-small python test suite (using unittest/nose) is also provided. 
 
 ### Installation
 
@@ -48,3 +44,22 @@ Then you can define a service like so:
         use                     generic-service
         }
 
+
+### Testing
+
+As of 13 Aug 2013 Naga has been tested on Ubuntu 12.04, 13.04 and RedHat 6.4. A
+small python test suite (using unittest/nose) is also provided. Your mileage
+may vary on other operating systems. The goal was to use system commands and
+files that will always be available, so please log bugs/issues if that is not
+the case.
+
+To run the tests install nose, then cd to project directory and run:
+
+   nosetests  
+
+If the ssh command returns some output that naga cannot process then you can
+add the argument `--capture=test/static/filename.txt` to capture the output for
+further debugging. If you're really adventurous you can write a regression test
+in `test/testnaga.py` using the captured output.
+
+[pgl]: http://nagiosplug.sourceforge.net/developer-guidelines.html
