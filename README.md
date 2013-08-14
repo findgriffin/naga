@@ -44,18 +44,30 @@ Then you can define a service like so:
         use                     generic-service
         }
 
+### Supported environments
+
+As of 14 Aug 2013 Naga has been tested with the following remote hosts:
+ * Ubuntu 10.04, 12.04, 13.04 (ok)
+ * RedHat 5/6 (ok)
+ * RHEL ES release 3 (no network)
+
+And the following non-linux operating systems:
+ * HP-UX (disk, filesytem only)
+ * XServe (filesystem only). 
+
+Most of the non-working cases are due to missing files. Eg. /proc/stat
+
+Your mileage may vary on other operating systems. The goal was to use system
+commands and files that will always be available, so please log bugs/issues if
+that is not the case on Linux. Or if there is a lower-common-denominator
+command/file that can be used.
 
 ### Testing
 
-As of 13 Aug 2013 Naga has been tested on Ubuntu 12.04, 13.04 and RedHat 6.4. A
-small python test suite (using unittest/nose) is also provided. Your mileage
-may vary on other operating systems. The goal was to use system commands and
-files that will always be available, so please log bugs/issues if that is not
-the case.
+A small python test suite (using unittest/nose) is provided. To run the tests
+install nose, then cd to project directory and run:
 
-To run the tests install nose, then cd to project directory and run:
-
-   nosetests  
+    nosetests
 
 If the ssh command returns some output that naga cannot process then you can
 add the argument `--capture=test/static/filename.txt` to capture the output for
