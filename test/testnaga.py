@@ -65,6 +65,12 @@ class TestFilesystem(TestCase):
         level, desc, extra = run_info('filesystem', 'hpux')
         self.assertEqual(len(desc), 6)
 
+    def test_darwin(self):
+        """Test disk(..)"""
+        level, desc, extra = run_info('filesystem', 'darwin')
+        self.assertAlmostEqual(level, 0.132, places=3)
+        self.assertEqual(len(desc), 2)
+
 class TestLoad(TestCase):
     """ Collection of tests for load(..)"""
 

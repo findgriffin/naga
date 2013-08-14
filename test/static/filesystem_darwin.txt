@@ -1,0 +1,11 @@
+Filesystem               512-blocks       Used     Avail Capacity  Mounted on
+/dev/disk0s4              160558544   21201336 138845208    13%    /
+devfs                           200        200         0   100%    /dev
+fdesc                             2          2         0   100%    /dev
+<volfs>                        1024       1024         0   100%    /.vol
+automount -nsl [159]              0          0         0   100%    /Network
+automount -fstab [176]            0          0         0   100%    /automount/Servers
+automount -static [176]           0          0         0   100%    /automount/static
+/dev/disk2s1              781417600  543932360 237485240    70%    /Volumes/testfiles
+orion:/export/home/atrax 1854942272 1509075848 251640816    86%    /private/var/automount/home/atrax
+toshiba-rd:/mfp           403171264  206511248 176180016    54%    /private/var/automount/toshiba_rd/mfp

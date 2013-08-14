@@ -225,9 +225,15 @@ def filesystem(out, **kwargs):
             continue
         if len(parts) == 5:
             parts.insert(0, last_fs)
+        # Expected output of df:
         # filesystem blocks used available use% mounted
-        systems[parts[5]] = [parts[0], int(parts[1]), int(parts[2]), 
-                int(parts[3])]
+        try: 
+            systems[parts[5]] = [parts[0], int(parts[1]), int(parts[2]), 
+                    int(parts[3])]
+        except ValueError:
+            # if we can't convert to int, skip line and carry on
+            pass
+
     if not 'special' in kwargs:
         fsys = '/'
     else:
