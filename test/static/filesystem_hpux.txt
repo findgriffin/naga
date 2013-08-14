@@ -1,0 +1,9 @@
+Filesystem           512-blocks  Used  Available Capacity Mounted on
+orion:/export/home/atrax
+                      1760716664 1509020168 251696496    86%   /tmp_mnt/home/atrax
+/dev/vg00/lvol6       2394432  1639808   754624    69%   /opt
+/dev/vg00/lvol4       406576     5552   401024     2%   /tmp
+/dev/vg00/lvol7       5476864  2925296  2551568    54%   /usr
+/dev/vg00/lvol8       2324304   934240  1390064    41%   /var
+/dev/vg00/lvol1       531040   113488   417552    22%   /stand
+/dev/vg00/lvol3       409056   332720    76336    82%   /

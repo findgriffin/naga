@@ -60,6 +60,11 @@ class TestFilesystem(TestCase):
         self.assertEqual(extra, 'on /')
         self.assertEqual(desc[0], ('/', '/dev/sda1;286449848;93215152'))
 
+    def test_hpux(self):
+        """Test disk(..)"""
+        level, desc, extra = run_info('filesystem', 'hpux')
+        self.assertEqual(len(desc), 6)
+
 class TestLoad(TestCase):
     """ Collection of tests for load(..)"""
 
