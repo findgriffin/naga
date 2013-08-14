@@ -52,14 +52,6 @@ class TestFilesystem(TestCase):
             '/dev/md1;952912348;521857176'))
         self.assertEqual(desc[3], ('/mnt/backup', '/dev/md1;952912348;521857176'))
 
-    def test_redhat(self):
-        """Test disk(..)"""
-        level, desc, extra = run_info('filesystem', 'redhat')
-        self.assertAlmostEqual(level, 0.325, places=3)
-        self.assertEqual(len(desc), 1)
-        self.assertEqual(extra, 'on /')
-        self.assertEqual(desc[0], ('/', '/dev/sda1;286449848;93215152'))
-
 class TestLoad(TestCase):
     """ Collection of tests for load(..)"""
 

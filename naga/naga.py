@@ -217,14 +217,8 @@ def disk(out, **kwargs):
 def filesystem(out, **kwargs):
     """ Get filesystem usage."""
     systems = {}
-    last_fs = None
     for line in out.splitlines()[1:]:
         parts = line.split()
-        if len(parts) == 1:
-            last_fs = parts[0]
-            continue
-        if len(parts) == 5:
-            parts.insert(0, last_fs)
         # filesystem blocks used available use% mounted
         systems[parts[5]] = [parts[0], int(parts[1]), int(parts[2]), 
                 int(parts[3])]
