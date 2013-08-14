@@ -374,7 +374,7 @@ class NagaExit(SystemExit):
     prefix = {0: 'OK', 1: 'Warning', 2: 'Critical', 3: 'Unknown'}
     
     def __init__(self, status, msg, desc=None):
-        self.status = status
+        self.code = status
         self.msg = msg
         self.desc = desc
         print self.collate_output()
@@ -382,7 +382,7 @@ class NagaExit(SystemExit):
 
     def collate_output(self):
         """Produce output conforming to nagios plugin guidelines."""
-        out = [self.prefix[self.status]+':', self.msg]
+        out = [self.prefix[self.code]+':', self.msg]
         if self.desc is not None:
             out.extend(['|', self.desc])
         return ' '.join(out)
