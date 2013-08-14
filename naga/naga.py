@@ -26,7 +26,7 @@ INFO_CHOICES = {
     '/bin/cat', '/sys/class/net/*/statistics/rx_bytes', '&&', 
     '/bin/cat', '/sys/class/net/*/statistics/tx_bytes',
     ],
- 'filesystem': ['/bin/df']
+ 'filesystem': ['/bin/df', '-P']
  }
 
 INFO_LEVELS = {
