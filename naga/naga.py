@@ -239,8 +239,7 @@ def filesystem(out, **kwargs):
     else:
         fsys = kwargs['special']
     if not fsys in systems:
-        print 'Unknown: could not find filesystem %s | %s' % (fsys, out)
-        exit(3)
+        raise NagaExit(3, 'could not find filesystem %s | %s' % (fsys, out))
     fs_info = systems[fsys]
     
     detail = []
