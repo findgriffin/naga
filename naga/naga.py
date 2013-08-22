@@ -188,18 +188,19 @@ def cpu(out, **kwargs):
     state_t0 = lines[0+offset].split()[1:]
     state_t1 = lines[length/2+offset].split()[1:]
     diff = [sum((int(b), -int(a))) for a, b in zip(state_t0, state_t1)]
-    total   = sum(diff)
+    total = sum(diff)
+    ratio = [float(x)/y for x, y in zip(diff, [total]*len(diff))]
     detail = [
-            ('user'    , diff[0]),
-            ('nice'    , diff[1]),
-            ('system'  , diff[2]),
-            ('idle'    , diff[3]),
-            ('iowait'  , diff[4]),
-            ('irq'     , diff[5]),
-            ('softirq' , diff[6]),
+            ('all'     , sum(ratio)-ratio[3], '%'),
+            ('user'    , ratio[0], '%'),
+            ('nice'    , ratio[1], '%'),
+            ('system'  , ratio[2], '%'),
+            ('idle'    , ratio[3], '%'),
+            ('iowait'  , ratio[4], '%'),
+            ('irq'     , ratio[5], '%'),
+            ('softirq' , ratio[6], '%'),
         ]
-    level = float(total - detail[3][1]) / total
-    return level, detail, cpu_n 
+    return detail[0][1], detail, cpu_n
 
 def disk(out, **kwargs):
     """ Get disk io."""
