@@ -325,7 +325,7 @@ def build_perfdata(data):
 def format_num(i, sigfig=2):
     if type(i) == str:
         return i
-    elif type(i) == int:
+    elif type(i) == int or type(i) == long:
         return str(i)
     elif type(i) == float:
         if i < 10**sigfig:
