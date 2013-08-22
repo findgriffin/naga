@@ -296,22 +296,27 @@ def finish(info, level, detail, extra, **kwargs):
         crit = kwargs['crit']
     else:
         crit = INFO_LEVELS[info][1]
-    if type(detail) == list:
-        detail = ';'.join(['='.join((k, str(v))) for k, v in detail])
+    perfdata = build_perfdata(detail)
     if warn >= crit:
         raise NagaExit(1, 'warn (%s) > crit (%s) for %s' % (warn, crit,
-                info), detail)
+                info), perfdata)
     if level < warn and level < crit:
         raise NagaExit(0, '%s usage is %.2g%s %s' % (info, converted, unit,
-            extra), detail)
+            extra), perfdata)
     if level >= warn and level < crit:
         raise NagaExit(1, '%s usage is high %.2g%s %s' % (info, converted,
-                unit, extra), detail)
+                unit, extra), perfdata)
     if level >= crit:
         raise NagaExit(2, '%s usage is critical %.2g%s %s' % (info,
-                converted, unit, extra), detail)
+                converted, unit, extra), perfdata)
     else:
-        raise NagaExit(3, 'Unknown: no conditions were met', desc=detail)
+        raise NagaExit(3, 'Unknown: no conditions were met', desc=perfdata)
+
+def build_perfdata(data):
+    if type(data) == list:
+        return ';'.join(['='.join((k, str(v))) for k, v in data])
+    return data
+
 
 def main():
     """ Called when running naga from command line."""
