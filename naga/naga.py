@@ -156,13 +156,10 @@ def load(out, **kwargs):
     split = lines[0].split()
     cores = int(lines[1])
     desc = [
-           ('5min',  split[0]),
+           ('5min',  split[0], '', 0, cores),
            ('10min', split[1]),
            ('15min', split[2]),
            ('running', split[3].split('/')[0]),
-           ('procs', split[3].split('/')[1]),
-           ('last', split[4]),
-           ('cores', cores),
             ]
     return float(split[0])/cores, desc, 'x %s cores' % cores
 
@@ -316,8 +313,8 @@ def build_perfdata(data):
     if type(data) == list:
         items = []
         for item in data:
-            out = '='.join([format_num(i) for i in item[:2]])
-            out += ';'.join(item[2:])
+            out =  '='.join([format_num(i) for i in item[:2]])
+            out += ';'.join([format_num(i) for i in item[2:]])
             items.append(out)
         return ' '.join(items)
     return data

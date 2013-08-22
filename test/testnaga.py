@@ -89,14 +89,11 @@ class TestLoad(TestCase):
         level, desc, extra = run_info('load', 'basic')
         self.assertAlmostEqual(level, 0.095, places=3)
         self.assertEqual(extra, 'x 2 cores')
-        self.assertEqual(len(desc), 7)
-        self.assertEqual(desc[0], ('5min', '0.19'))
+        self.assertEqual(len(desc), 4)
+        self.assertEqual(desc[0], ('5min', '0.19', '', 0, 2))
         self.assertEqual(desc[1], ('10min', '0.22'))
         self.assertEqual(desc[2], ('15min', '0.30'))
         self.assertEqual(desc[3], ('running', '4'))
-        self.assertEqual(desc[4], ('procs', '554'))
-        self.assertEqual(desc[5], ('last', '32186'))
-        self.assertEqual(desc[6], ('cores', 2))
 
 class TestMemory(TestCase):
     """ Collection of tests for memory(..)"""
