@@ -19,16 +19,26 @@ class TestCpu(TestCase):
         """Test cpu(..)"""
         level, desc, extra = run_info('cpu', 'basic')
         self.assertEqual(extra, '')
-        self.assertEqual(level, 0.007462686567164179)
-        self.assertEqual(len(desc), 7)
-        self.assertEqual(desc[0], ('user', 2))
-        self.assertEqual(desc[1], ('nice', 0))
-        self.assertEqual(desc[2], ('system', 1))
-        self.assertEqual(desc[3], ('idle', 399))
-        self.assertEqual(desc[4], ('iowait', 0))
-        self.assertEqual(desc[5], ('irq', 0))
-        self.assertEqual(desc[6], ('softirq', 0))
+        self.assertAlmostEqual(level, 0.00746268656716)
+        self.assertEqual(len(desc), 8)
+        
+        self.assertEqual(desc[0][0], 'all')
+        self.assertEqual(desc[1][0], 'user')
+        self.assertEqual(desc[2][0], 'nice')
+        self.assertEqual(desc[3][0], 'system')
+        self.assertEqual(desc[4][0], 'idle')
+        self.assertEqual(desc[5][0], 'iowait')
+        self.assertEqual(desc[6][0], 'irq')
+        self.assertEqual(desc[7][0], 'softirq')
 
+        self.assertAlmostEqual(desc[0][1], 0.00746, 5)
+        self.assertAlmostEqual(desc[1][1], 0.00498, 5)
+        self.assertAlmostEqual(desc[2][1], 0.0)
+        self.assertAlmostEqual(desc[3][1], 0.00249, 5)
+        self.assertAlmostEqual(desc[4][1], 0.99254, 5)
+        self.assertAlmostEqual(desc[5][1], 0.0)
+        self.assertAlmostEqual(desc[6][1], 0.0)
+        self.assertAlmostEqual(desc[7][1], 0.0)
 class TestDisk(TestCase):
 
     def test_basic(self):
