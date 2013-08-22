@@ -285,9 +285,9 @@ def finish(info, level, detail, extra, **kwargs):
     """ Exit with correct status and message."""
     unit = INFO_UNITS[info]
     if unit == '%':
-        converted = level*100
+        converted = format_num(level*100)
     else:
-        converted = level
+        converted = format_num(level)
     if 'warn' in kwargs and kwargs['warn'] is not None:
         warn = kwargs['warn']
     else:
@@ -301,22 +301,37 @@ def finish(info, level, detail, extra, **kwargs):
         raise NagaExit(1, 'warn (%s) > crit (%s) for %s' % (warn, crit,
                 info), perfdata)
     if level < warn and level < crit:
-        raise NagaExit(0, '%s usage is %.2g%s %s' % (info, converted, unit,
+        raise NagaExit(0, '%s usage is %s%s %s' % (info, converted, unit,
             extra), perfdata)
     if level >= warn and level < crit:
-        raise NagaExit(1, '%s usage is high %.2g%s %s' % (info, converted,
+        raise NagaExit(1, '%s usage is high %s%s %s' % (info, converted,
                 unit, extra), perfdata)
     if level >= crit:
-        raise NagaExit(2, '%s usage is critical %.2g%s %s' % (info,
+        raise NagaExit(2, '%s usage is critical %s%s %s' % (info,
                 converted, unit, extra), perfdata)
     else:
         raise NagaExit(3, 'Unknown: no conditions were met', desc=perfdata)
 
 def build_perfdata(data):
     if type(data) == list:
-        return ';'.join(['='.join((k, str(v))) for k, v in data])
+        items = []
+        for item in data:
+            out = '='.join([format_num(i) for i in item[:2]])
+            out += ';'.join(item[2:])
+            items.append(out)
+        return ' '.join(items)
     return data
 
+def format_num(i, sigfig=2):
+    if type(i) == str:
+        return i
+    elif type(i) == int:
+        return str(i)
+    elif type(i) == float:
+        if i < 10**sigfig:
+            return str(round(i, sigfig))
+        else:
+            return str(int(round(i, 0)))
 
 def main():
     """ Called when running naga from command line."""
