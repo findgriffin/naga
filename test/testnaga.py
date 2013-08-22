@@ -159,6 +159,16 @@ class TestFinish(TestCase):
         self.assertEqual(cm.exception.code, 2)
 
                 
+class TestFormatNum(TestCase):
+    def test_basic(self):
+        fmn = naga.format_num
+        self.assertEqual(fmn(13), '13')
+        self.assertEqual(fmn(123), '123')
+        self.assertEqual(fmn(1234), '1234')
+        self.assertEqual(fmn('foo'), 'foo')
+        self.assertEqual(fmn(0.042642), '0.04')
+        self.assertEqual(fmn(13424L), '13424')
+
     
 class TestTimecheck(TestCase):
     def test_timecheck(self):
