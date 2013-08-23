@@ -22,7 +22,7 @@ class TestCpu(TestCase):
         self.assertAlmostEqual(level, 0.00746268656716)
         self.assertEqual(len(desc), 8)
         
-        self.assertEqual(desc[0][0], 'all')
+        self.assertEqual(desc[0][0], 'cpu')
         self.assertEqual(desc[1][0], 'user')
         self.assertEqual(desc[2][0], 'nice')
         self.assertEqual(desc[3][0], 'system')
@@ -90,9 +90,9 @@ class TestLoad(TestCase):
         self.assertAlmostEqual(level, 0.095, places=3)
         self.assertEqual(extra, 'x 2 cores')
         self.assertEqual(len(desc), 4)
-        self.assertEqual(desc[0], ('5min', '0.19', '', 0, 2))
-        self.assertEqual(desc[1], ('10min', '0.22'))
-        self.assertEqual(desc[2], ('15min', '0.30'))
+        self.assertEqual(desc[0], ('load1', '0.19', '', 0, 2))
+        self.assertEqual(desc[1], ('load5', '0.22'))
+        self.assertEqual(desc[2], ('load15', '0.30'))
         self.assertEqual(desc[3], ('running', '4'))
 
 class TestMemory(TestCase):
