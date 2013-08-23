@@ -156,9 +156,9 @@ def load(out, **kwargs):
     split = lines[0].split()
     cores = int(lines[1])
     desc = [
-           ('5min',  split[0], '', 0, cores),
-           ('10min', split[1]),
-           ('15min', split[2]),
+           ('load1',  split[0], '', 0, cores),
+           ('load5', split[1]),
+           ('load15', split[2]),
            ('running', split[3].split('/')[0]),
             ]
     return float(split[0])/cores, desc, 'x %s cores' % cores
@@ -188,7 +188,7 @@ def cpu(out, **kwargs):
     total = sum(diff)
     ratio = [float(x)/y for x, y in zip(diff, [total]*len(diff))]
     detail = [
-            ('all'     , sum(ratio)-ratio[3], '%'),
+            ('cpu'     , sum(ratio)-ratio[3], '%'),
             ('user'    , ratio[0], '%'),
             ('nice'    , ratio[1], '%'),
             ('system'  , ratio[2], '%'),
