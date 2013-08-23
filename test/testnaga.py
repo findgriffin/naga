@@ -52,32 +52,32 @@ class TestFilesystem(TestCase):
     """ Collection of tests for filesystem(..)"""
 
     def test_basic(self):
-        """Test disk(..)"""
+        """Test filesystem, basic"""
         level, desc, extra = run_info('filesystem', 'basic')
         self.assertAlmostEqual(level, 0.208, places=3)
         self.assertEqual(len(desc), 4)
         self.assertEqual(extra, 'on /')
-        self.assertEqual(desc[0], ('/', '/dev/sdd5;115065400;23939856'))
-        self.assertEqual(desc[1], ('/mnt/bigdisk', '/dev/sdc1;2884152536;1472177232'))
-        self.assertEqual(desc[2], ('/media/david/d5fd6b6e-c3fb-4399-bee7-8ae6bfe985ba', 
-            '/dev/md1;952912348;521857176'))
-        self.assertEqual(desc[3], ('/mnt/backup', '/dev/md1;952912348;521857176'))
+        self.assertEqual(desc[0], ("'/'", '/dev/sdd5;115065400;23939856'))
+        self.assertEqual(desc[1], ("'/mnt/bigdisk'", "/dev/sdc1;2884152536;1472177232"))
+        self.assertEqual(desc[2], ("'/media/david/d5fd6b6e-c3fb-4399-bee7-8ae6bfe985ba'", 
+            "/dev/md1;952912348;521857176"))
+        self.assertEqual(desc[3], ("'/mnt/backup'", "/dev/md1;952912348;521857176"))
 
     def test_redhat(self):
-        """Test disk(..)"""
+        """Test filesystem on redhat"""
         level, desc, extra = run_info('filesystem', 'redhat')
         self.assertAlmostEqual(level, 0.325, places=3)
         self.assertEqual(len(desc), 1)
         self.assertEqual(extra, 'on /')
-        self.assertEqual(desc[0], ('/', '/dev/sda1;286449848;93215152'))
+        self.assertEqual(desc[0], ("'/'", '/dev/sda1;286449848;93215152'))
 
     def test_hpux(self):
-        """Test disk(..)"""
+        """Test filesystem on HP-UX"""
         level, desc, extra = run_info('filesystem', 'hpux')
         self.assertEqual(len(desc), 6)
 
     def test_darwin(self):
-        """Test disk(..)"""
+        """Test filesystem on darwin / XServe"""
         level, desc, extra = run_info('filesystem', 'darwin')
         self.assertAlmostEqual(level, 0.132, places=3)
         self.assertEqual(len(desc), 2)
