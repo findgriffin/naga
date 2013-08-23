@@ -209,7 +209,7 @@ def disk(out, **kwargs):
     lines = out.splitlines()
     mb_in  = int(lines[-1].split()[8])*block/mega
     mb_out = int(lines[-1].split()[8])*block/mega
-    desc = 'mb_in=%s;mb_out=%s' % (mb_in, mb_out)
+    desc = 'in_persec=%sMB;out_persec=%sMB' % (mb_in, mb_out)
     return mb_in+mb_out, desc, ''
 
 def filesystem(out, **kwargs):

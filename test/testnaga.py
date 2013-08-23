@@ -39,13 +39,14 @@ class TestCpu(TestCase):
         self.assertAlmostEqual(desc[5][1], 0.0)
         self.assertAlmostEqual(desc[6][1], 0.0)
         self.assertAlmostEqual(desc[7][1], 0.0)
+
 class TestDisk(TestCase):
 
     def test_basic(self):
         """Test disk(..)"""
         level, desc, extra = run_info('disk', 'basic')
         self.assertEqual(level, 10)
-        self.assertEqual(desc, 'mb_in=5;mb_out=5')
+        self.assertEqual(desc, 'in_persec=5MB;out_persec=5MB')
 
 class TestFilesystem(TestCase):
     """ Collection of tests for filesystem(..)"""
