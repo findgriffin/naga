@@ -57,11 +57,11 @@ class TestFilesystem(TestCase):
         self.assertAlmostEqual(level, 0.208, places=3)
         self.assertEqual(len(desc), 4)
         self.assertEqual(extra, 'on /')
-        self.assertEqual(desc[0], ("'/'", '/dev/sdd5;115065400;23939856'))
-        self.assertEqual(desc[1], ("'/mnt/bigdisk'", "/dev/sdc1;2884152536;1472177232"))
+        self.assertEqual(desc[0], ("'/'", '115065400;;;0;23939856'))
+        self.assertEqual(desc[1], ("'/mnt/bigdisk'", "2884152536;;;0;1472177232"))
         self.assertEqual(desc[2], ("'/media/david/d5fd6b6e-c3fb-4399-bee7-8ae6bfe985ba'", 
-            "/dev/md1;952912348;521857176"))
-        self.assertEqual(desc[3], ("'/mnt/backup'", "/dev/md1;952912348;521857176"))
+            "952912348;;;0;521857176"))
+        self.assertEqual(desc[3], ("'/mnt/backup'", "952912348;;;0;521857176"))
 
     def test_redhat(self):
         """Test filesystem on redhat"""
@@ -69,7 +69,7 @@ class TestFilesystem(TestCase):
         self.assertAlmostEqual(level, 0.325, places=3)
         self.assertEqual(len(desc), 1)
         self.assertEqual(extra, 'on /')
-        self.assertEqual(desc[0], ("'/'", '/dev/sda1;286449848;93215152'))
+        self.assertEqual(desc[0], ("'/'", '286449848;;;0;93215152'))
 
     def test_hpux(self):
         """Test filesystem on HP-UX"""

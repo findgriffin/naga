@@ -243,8 +243,8 @@ def filesystem(out, **kwargs):
     detail = []
     for name, info in systems.items():
         if info[0].startswith('/dev/') or name == '/':
-            data = ';'.join([str(i) for i in info[:3]])
-            detail.append(("'"+name+"'", data))
+            data = [str(i) for i in [info[1], '', '', 0, info[2]]]
+            detail.append(("'"+name+"'", ';'.join(data)))
 
     return float(fs_info[2]) / fs_info[1], detail, 'on %s' % fsys
 
