@@ -188,16 +188,16 @@ def cpu(out, **kwargs):
     total = sum(diff)
     ratio = [float(x)/y for x, y in zip(diff, [total]*len(diff))]
     detail = [
-            ('cpu'     , sum(ratio)-ratio[3], '%'),
-            ('user'    , ratio[0], '%'),
-            ('nice'    , ratio[1], '%'),
-            ('system'  , ratio[2], '%'),
-            ('idle'    , ratio[3], '%'),
-            ('iowait'  , ratio[4], '%'),
-            ('irq'     , ratio[5], '%'),
-            ('softirq' , ratio[6], '%'),
+            ('cpu'     , (sum(ratio)-ratio[3])*100, '%'),
+            ('user'    , ratio[0]*100, '%'),
+            ('nice'    , ratio[1]*100, '%'),
+            ('system'  , ratio[2]*100, '%'),
+            ('idle'    , ratio[3]*100, '%'),
+            ('iowait'  , ratio[4]*100, '%'),
+            ('irq'     , ratio[5]*100, '%'),
+            ('softirq' , ratio[6]*100, '%'),
         ]
-    return detail[0][1], detail, cpu_n
+    return detail[0][1]/100, detail, cpu_n
 
 def disk(out, **kwargs):
     """ Get disk io."""
