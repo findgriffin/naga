@@ -8,4 +8,4 @@ install:
 # run tests
 script: 
     - nosetests test.testnaga
-    - if [[ $TRAVIS_PYTHON_VERSION == '2.7' ]]; then nosetests test.testfinish fi
+    - if [[ $TRAVIS_PYTHON_VERSION == '2.7' ]]; then nosetests test.testfinish; fi
