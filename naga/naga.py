@@ -94,7 +94,7 @@ arguments:
     parser.add_option('-k', '--key',
         help='SSH private key file to use.')
     parser.add_option('-i', '--information', default=INFO_DEFAULT,
-            choices=INFO_CHOICES.keys(),
+            choices=list(INFO_CHOICES.keys()),
         help='Which type of information to return.')
     parser.add_option('-s', '--special',
         help='Any special arguments (specific to each information type)')
@@ -241,7 +241,7 @@ def filesystem(out, **kwargs):
     fs_info = systems[fsys]
     
     detail = []
-    for name, info in systems.items():
+    for name, info in list(systems.items()):
         if info[0].startswith('/dev/') or name == '/':
             data = [str(i) for i in [info[1], '', '', 0, info[2]]]
             detail.append(("'"+name+"'", ';'.join(data)))
@@ -267,11 +267,11 @@ def network(out, **kwargs):
                     break
             if iface is not None:
                 break
-    result = [data[i:i+len(ifaces)] for i in xrange(0, len(data), len(ifaces))]
+    result = [data[i:i+len(ifaces)] for i in range(0, len(data), len(ifaces))]
     rx_diff = [sum((int(b), -int(a))) for a, b in zip(result[0], result[2])]
     tx_diff = [sum((int(b), -int(a))) for a, b in zip(result[1], result[3])]
     desc = []
-    for i in xrange(len(ifaces)):
+    for i in range(len(ifaces)):
         desc.append((ifaces[i]+'_rx', rx_diff[i]))
         desc.append((ifaces[i]+'_tx', tx_diff[i]))
     i = ifaces.index(iface)
@@ -322,7 +322,7 @@ def build_perfdata(data):
 def format_num(i, sigfig=2):
     if type(i) == str:
         return i
-    elif type(i) == int or type(i) == long:
+    elif type(i) == int or type(i) == int:
         return str(i)
     elif type(i) == float:
         if i < 10**sigfig:
@@ -354,11 +354,11 @@ def main():
     except TypeError:
         crit = None
     kwargs = {}
-    for key, val in opts[0].__dict__.items():
+    for key, val in list(opts[0].__dict__.items()):
         if key not in required and val is not None:
             kwargs[key] = val
 
-    if not info in globals().keys():
+    if not info in list(globals().keys()):
         raise NagaExit(3, 'Could not find processing method for %s' % info)
     logging.debug('about to connect to %s', opts[0].hostname)
     out = connect(opts[0].hostname, info, tout, opts[0].binary, 
@@ -394,7 +394,7 @@ class NagaExit(SystemExit):
         self.code = status
         self.msg = msg
         self.desc = desc
-        print self.collate_output()
+        print(self.collate_output())
         super(NagaExit, self).__init__()
 
     def collate_output(self):

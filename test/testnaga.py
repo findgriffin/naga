@@ -137,7 +137,7 @@ class TestFormatNum(TestCase):
         self.assertEqual(fmn(1234), '1234')
         self.assertEqual(fmn('foo'), 'foo')
         self.assertEqual(fmn(0.042642), '0.04')
-        self.assertEqual(fmn(13424L), '13424')
+        self.assertEqual(fmn(13424), '13424')
 
     
 class TestTimecheck(TestCase):
