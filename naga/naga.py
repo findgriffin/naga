@@ -8,6 +8,7 @@ import optparse
 import subprocess
 import time
 import logging
+import locale
 
 DIVIDE = 'NAGA_DIVIDE'
 INFO_DEFAULT = 'load'
@@ -150,9 +151,8 @@ def memory(out, **kwargs):
     level = float(detail[1][1]) / detail[0][1]
     return level, detail, ''
 
-def load(out, **kwargs):
+def load(lines, **kwargs):
     """Get load information."""
-    lines = out.splitlines()
     split = lines[0].split()
     cores = int(lines[1])
     desc = [
@@ -163,7 +163,7 @@ def load(out, **kwargs):
             ]
     return float(split[0])/cores, desc, 'x %s cores' % cores
 
-def cpu(out, **kwargs):
+def cpu(lines, **kwargs):
     """Get cpu usage."""
     if 'special' in kwargs:
         cpu_n = kwargs['special']
@@ -176,7 +176,6 @@ def cpu(out, **kwargs):
         offset = int(cpu_n[3:])
     else:
         raise NagaExit(3, 'invalid cpu: %s' % cpu_n)
-    lines  = out.splitlines()
     length = len(lines)
     if not length % 2 == 0:
         raise NagaExit(3, 'successive calls of /proc/stat were too different')
@@ -199,24 +198,23 @@ def cpu(out, **kwargs):
         ]
     return detail[0][1]/100, detail, cpu_n
 
-def disk(out, **kwargs):
+def disk(lines, **kwargs):
     """ Get disk io."""
     mega = 1024*1024
     if 'block' in kwargs:
         block = kwargs['block']
     else:
         block = 4096
-    lines = out.splitlines()
     mb_in  = int(lines[-1].split()[8])*block/mega
     mb_out = int(lines[-1].split()[8])*block/mega
     desc = 'in_persec=%sMB;out_persec=%sMB' % (mb_in, mb_out)
     return mb_in+mb_out, desc, ''
 
-def filesystem(out, **kwargs):
+def filesystem(lines, **kwargs):
     """ Get filesystem usage."""
     systems = {}
     last_fs = None
-    for line in out.splitlines()[1:]:
+    for line in lines[1:]:
         parts = line.split()
         if len(parts) == 1:
             last_fs = parts[0]
@@ -248,8 +246,9 @@ def filesystem(out, **kwargs):
 
     return float(fs_info[2]) / fs_info[1], detail, 'on %s' % fsys
 
-def network(out, **kwargs):
+def network(lines, **kwargs):
     """ Get network usage."""
+    out = '\n'.join(lines)
     if_default = ['eth', 'wlan', 'wwan']
     ifaces = out.split(DIVIDE)[0].split()
     data   = out.split(DIVIDE)[1].split()
@@ -374,7 +373,10 @@ def main():
     if 'capture' in kwargs:
         capture_output(out, kwargs['capture'])
 
-    level, detail, extra = globals()[info](out[1], **kwargs)
+    encoding = locale.getdefaultlocale()[1]
+    import pdb; pdb.set_trace()
+    decoded = [line.decode(encoding) for line in out[1].splitlines()]
+    level, detail, extra = globals()[info](decoded, **kwargs)
     timecheck(start, tout, 'after running %s()' % info)
     finish(info, level, detail, extra, warn=warn, crit=crit)
 
