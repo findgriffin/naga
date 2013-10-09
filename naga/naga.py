@@ -135,9 +135,8 @@ def connect(hostname, info, timeout, binary, start_time=None, **kwargs):
     err = proc.stderr.read()
     return ret, out, err
 
-def memory(out, **kwargs):
+def memory(lines, **kwargs):
     """Get information about memory usage."""
-    lines = out.splitlines()
     line1 = lines[1].split()
     line2 = lines[2].split()
     detail = [
@@ -182,7 +181,7 @@ def cpu(lines, **kwargs):
     # columns
     # user, nice, system, idle, iowait, irq, softirq
     state_t0 = lines[0+offset].split()[1:]
-    state_t1 = lines[length/2+offset].split()[1:]
+    state_t1 = lines[int(length/2)+offset].split()[1:]
     diff = [sum((int(b), -int(a))) for a, b in zip(state_t0, state_t1)]
     total = sum(diff)
     ratio = [float(x)/y for x, y in zip(diff, [total]*len(diff))]
@@ -312,7 +311,12 @@ def build_perfdata(data):
     if type(data) == list:
         items = []
         for item in data:
-            out =  '='.join([format_num(i) for i in item[:2]])
+            nums = item[:2]
+            print(nums)
+            numslist = list(nums)
+            o1 = [format_num(i) for i in numslist]
+            print(o1)
+            out =  '='.join(o1)
             out += ';'.join([format_num(i) for i in item[2:]])
             items.append(out)
         return ' '.join(items)
@@ -374,8 +378,8 @@ def main():
         capture_output(out, kwargs['capture'])
 
     encoding = locale.getdefaultlocale()[1]
-    import pdb; pdb.set_trace()
     decoded = [line.decode(encoding) for line in out[1].splitlines()]
+    print(decoded)
     level, detail, extra = globals()[info](decoded, **kwargs)
     timecheck(start, tout, 'after running %s()' % info)
     finish(info, level, detail, extra, warn=warn, crit=crit)

@@ -1,5 +1,6 @@
 from naga import naga
 from unittest import TestCase
+import locale
 
 class TestOptions(TestCase):
 
@@ -10,7 +11,9 @@ def run_info(info, name):
     """ Get sample output file and use it for input to naga info method"""
     with open('test/static/%s_%s.txt' % (info, name), 'rb') as outfile:
         out = outfile.read()
-        return getattr(naga, info)(out)
+        encoding = locale.getdefaultlocale()[1]
+        decoded = [line.decode(encoding) for line in out[1].splitlines()]
+        return getattr(naga, info)(decoded)
 
 class TestCpu(TestCase):
             
